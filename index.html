@@ -52,17 +52,16 @@ main{padding:20px 36px 48px}
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
 .funnel-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:0}
 /* Row 1: dots + conversion % */
-.fg-dot-cell{display:flex;justify-content:center;align-items:center;padding-bottom:4px}
+.fg-dot-cell{display:flex;justify-content:center;align-items:center;padding-bottom:4px;position:relative;z-index:2}
 .fg-dot{width:10px;height:10px;border-radius:50%}
 .fg-pct-cell{display:flex;justify-content:center;align-items:center;position:relative;padding-bottom:4px}
-.fg-pct-line{position:absolute;top:50%;left:0;right:0;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
+.fg-pct-line{position:absolute;top:50%;left:-50%;right:-50%;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
 .fg-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
-/* Row 2: numbers */
-.fg-num-cell{display:flex;justify-content:center;padding-bottom:4px}
-.fg-num{font-size:11px;font-weight:600;color:var(--deep)}
+/* Row 2: numbers — removed, numbers go above bars in row 3 */
 /* Row 3: bars */
-.fg-bar-cell{display:flex;justify-content:center;align-items:flex-end;height:160px}
-.fg-bar{width:55%;border-radius:6px 6px 0 0;min-height:6px;display:flex;align-items:center;justify-content:center}
+.fg-bar-cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:180px}
+.fg-bar-num{font-size:11px;font-weight:600;color:var(--deep);margin-bottom:4px}
+.fg-bar{width:80%;border-radius:6px 6px 0 0;min-height:6px;display:flex;align-items:center;justify-content:center}
 .f-arr{font-size:8px;font-weight:600;padding:2px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;color:#fff;background:rgba(255,255,255,.22)}
 /* Row 4: labels */
 .fg-lbl-cell{display:flex;justify-content:center;padding-top:5px}
@@ -70,7 +69,7 @@ main{padding:20px 36px 48px}
 .funnel-footer{display:flex;align-items:center;gap:10px;margin-top:10px;padding:0 2px;flex-wrap:wrap}
 .funnel-legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .legend-item{font-size:9px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
-.legend-bubble{display:inline-flex;align-items:center;gap:3px;background:#fff;border:1px solid rgba(28,43,51,.08);padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;color:var(--muted)}
+.legend-bubble{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.22);padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;color:#fff}
 /* PIPELINE */
 .pipeline-grid{display:grid;gap:10px}
 .stage-hdr{padding:9px 12px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
@@ -157,9 +156,9 @@ main{padding:20px 36px 48px}
     <div class="funnel-wrap">
       <div id="funnel-grid" class="funnel-grid"></div>
       <div class="funnel-footer"><div class="funnel-legend">
-        <div class="legend-item"><div class="legend-bubble"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>+x</div> Variation since <span id="vd">—</span></div>
-        <div class="legend-item"><div class="legend-bubble">–</div> No change</div>
-        <div class="legend-item"><div class="legend-bubble">x%</div> Conversion rate between each stage</div>
+        <div class="legend-item"><div class="legend-bubble" style="background:rgba(28,43,51,.5)"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>+x</div> Variation since <span id="vd">—</span></div>
+        <div class="legend-item"><div class="legend-bubble" style="background:rgba(28,43,51,.5)">–</div> No change</div>
+        <div class="legend-item"><div class="legend-bubble" style="background:#fff;color:var(--muted);border:1px solid rgba(28,43,51,.08)">x%</div> Conversion rate between each stage</div>
       </div></div>
     </div>
   </div>
@@ -306,9 +305,8 @@ function load(){fetchD().then(function(data){
   if(pR){STG.forEach(function(s){var ci=sM[s.k];prv[s.k]=(ci!==undefined&&pR[ci])?parseInt(pR[ci])||0:0})}
   // Funnel — single CSS grid: 21 columns (11 stages + 10 gaps)
   // Row 1: dots + % between
-  // Row 2: numbers
-  // Row 3: bars
-  // Row 4: labels
+  // Row 2: bars with numbers above (combined)
+  // Row 3: labels
   var nCols=STG.length*2-1; // 21
   var gridEl=document.getElementById('funnel-grid');
   gridEl.style.gridTemplateColumns='repeat('+nCols+',1fr)';
@@ -325,19 +323,14 @@ function load(){fetchD().then(function(data){
       gh+='<div class="fg-pct-cell" style="grid-column:'+(col+1)+'"><div class="fg-pct-line"></div><div class="fg-pct">'+pct+'</div></div>';
     }
   });
-  // Row 2: numbers
-  STG.forEach(function(s,idx){
-    var col=idx*2+1;var v=cnt[s.k]||0;
-    gh+='<div class="fg-num-cell" style="grid-column:'+col+'"><div class="fg-num">'+v+'</div></div>';
-  });
-  // Row 3: bars
+  // Row 2: number + bar combined in one cell
   STG.forEach(function(s,idx){
     var col=idx*2+1;var v=cnt[s.k]||0;var h=Math.max(6,(v/mx)*150);
     var p=prv[s.k];var d=(p!==undefined)?v-p:0;
     var ar='';if(v>0){ar=d>0?'<div class="f-arr">'+aw+d+'</div>':'<div class="f-arr">–</div>'}
-    gh+='<div class="fg-bar-cell" style="grid-column:'+col+'"><div class="fg-bar" style="height:'+h+'px;background:'+s.c+'">'+ar+'</div></div>';
+    gh+='<div class="fg-bar-cell" style="grid-column:'+col+'"><div class="fg-bar-num">'+v+'</div><div class="fg-bar" style="height:'+h+'px;background:'+s.c+'">'+ar+'</div></div>';
   });
-  // Row 4: labels
+  // Row 3: labels
   STG.forEach(function(s,idx){
     var col=idx*2+1;
     gh+='<div class="fg-lbl-cell" style="grid-column:'+col+'"><div class="fg-lbl">'+s.l+'</div></div>';
