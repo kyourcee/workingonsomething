@@ -50,12 +50,12 @@ main{padding:20px 36px 48px}
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
 /* Conversion flow — integrated above bars */
 .conv-flow{display:none}
-.funnel-conv-row{display:flex;align-items:center;margin-bottom:6px}
-.funnel-conv-row .fc-spacer{width:0;flex:1 1 0}
-.funnel-conv-row .fc-arrow{flex:1 1 0;display:flex;align-items:center;justify-content:center;position:relative}
-.fc-arrow-line{position:absolute;top:50%;left:8px;right:8px;height:1px;background:rgba(28,43,51,.12)}
-.fc-arrow-head{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid rgba(28,43,51,.15);border-top:3px solid transparent;border-bottom:3px solid transparent}
-.fc-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
+.funnel-conv-row{display:flex;align-items:center;margin-bottom:8px}
+.fc-col{width:0;flex:1 1 0;display:flex;justify-content:center}
+.fc-dot{width:10px;height:10px;border-radius:50%}
+.fc-between{width:0;flex:1 1 0;display:flex;align-items:center;justify-content:center;position:relative}
+.fc-line{position:absolute;top:50%;left:0;right:0;height:1.5px;background:rgba(28,43,51,.1);transform:translateY(-50%)}
+.fc-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 6px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
 .funnel-bars{display:flex;align-items:flex-end;gap:0;height:170px}
 .f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
 .f-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:4px}
@@ -267,14 +267,16 @@ function load(){fd().then(function(data){
   else{counts={identified:buyers.length,approached:buyers.filter(function(b){return b.approached}).length,teaser:buyers.filter(function(b){return b.teaser}).length,nda_sent:buyers.filter(function(b){return b.nda_sent}).length,nda_signed:buyers.filter(function(b){return b.nda_signed}).length,im_sent:buyers.filter(function(b){return b.im_sent}).length,mgmt:0,loi:0,phase2:0,site_visit:0,binding:0}}
   if(prevRow){STAGES.forEach(function(s){var ci=stMap[s.key];prev[s.key]=(ci!==undefined&&prevRow[ci])?parseInt(prevRow[ci])||0:0})}
   // Conversion row above chart — same flex layout as bars, arrows between
+  // Conversion row — dot above each bar, % between dots, connected by line
   var cr='';
   STAGES.forEach(function(s,idx){
-    if(idx===0){cr+='<div class="fc-spacer"></div>'}
-    else{
-      var prevV=counts[STAGES[idx-1].key]||0;var curV=counts[s.key]||0;
-      var pct=prevV>0?Math.round((curV/prevV)*100)+'%':'';
-      cr+='<div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div>'+(pct?'<div class="fc-pct">'+pct+'</div>':'')+'</div>';
-      cr+='<div class="fc-spacer"></div>';
+    // Dot aligned with bar below
+    cr+='<div class="fc-col"><div class="fc-dot" style="background:'+s.color+'"></div></div>';
+    // Between this dot and next: line + %
+    if(idx<STAGES.length-1){
+      var curV=counts[s.key]||0;var nxtV=counts[STAGES[idx+1].key]||0;
+      var pct=curV>0?Math.round((nxtV/curV)*100)+'%':'';
+      cr+='<div class="fc-between"><div class="fc-line"></div>'+(pct?'<div class="fc-pct">'+pct+'</div>':'')+'</div>';
     }
   });
   document.getElementById('funnel-conv-row').innerHTML=cr;
@@ -288,10 +290,13 @@ function load(){fd().then(function(data){
     fh+='<div class="f-col"><div class="f-top"><div class="f-num">'+v+'</div></div><div class="f-bar" style="height:'+h+'px;background:'+s.color+'">'+arrow+'</div><div class="f-label-row"><div class="f-label">'+s.label+'</div></div></div>'
   });
   document.getElementById('funnel-bars').innerHTML=fh;
-  // Pipeline
+  // Pipeline — only show stages with at least 1 active buyer
   var pK=['teaser','nda_sent','nda_signed','im_sent','mgmt'];
   function hp(b){for(var i=pK.length-1;i>=0;i--){if(b[pK[i]])return pK[i]}return null}
-  var ph='';PIPE.forEach(function(s){var list=active.filter(function(b){return hp(b)===s.key});var cards=list.length?list.map(function(b){return'<div class="contact-card" onclick="showModal(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="card-logo">'+lg(b.name,b.domain)+'</div><div class="card-name">'+sn(b.name)+'</div></div>'}).join(''):'<div style="font-size:10px;color:var(--muted);opacity:.5;width:100%;text-align:center;padding:10px 0">—</div>';ph+='<div class="stage-col"><div class="stage-hdr" style="background:'+s.color+'"><div class="stage-hdr-name">'+s.label+'</div><div class="stage-hdr-count">'+list.length+'</div></div><div class="stage-body">'+cards+'</div></div>'});
+  var activePipe=PIPE.filter(function(s){return active.some(function(b){return hp(b)===s.key})});
+  // Dynamic grid columns
+  document.getElementById('pipeline-grid').style.gridTemplateColumns='repeat('+activePipe.length+',1fr)';
+  var ph='';activePipe.forEach(function(s){var list=active.filter(function(b){return hp(b)===s.key});var cards=list.map(function(b){return'<div class="contact-card" onclick="showModal(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="card-logo">'+lg(b.name,b.domain)+'</div><div class="card-name">'+sn(b.name)+'</div></div>'}).join('');ph+='<div class="stage-col"><div class="stage-hdr" style="background:'+s.color+'"><div class="stage-hdr-name">'+s.label+'</div><div class="stage-hdr-count">'+list.length+'</div></div><div class="stage-body">'+cards+'</div></div>'});
   document.getElementById('pipeline-grid').innerHTML=ph;
   // Strips
   var noT=active.filter(function(b){return b.approached&&!b.teaser});var s1='';if(noT.length){s1='<div class="strip-hdr" style="background:#1B4F63"><div class="strip-hdr-name">Approached but no teaser</div><div class="strip-hdr-count">'+noT.length+'</div></div><div class="strip-row">';noT.forEach(function(b){s1+='<div class="contact-card" onclick="showModal(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="card-logo">'+lg(b.name,b.domain)+'</div><div class="card-name">'+sn(b.name)+'</div></div>'});s1+='</div>'}document.getElementById('strip-approached').innerHTML=s1;
