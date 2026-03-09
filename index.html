@@ -44,6 +44,7 @@ header{background:var(--deep);height:62px;padding:0 36px;display:flex;align-item
 .pill-n{font-size:18px;font-weight:700;color:var(--deep);line-height:1}
 .pill-l{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-top:5px}
 .pill-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.pill-sub2{font-size:11px;color:var(--muted);margin-top:2px}
 main{padding:20px 36px 48px}
 .sec{margin-bottom:32px}
 .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -59,7 +60,6 @@ main{padding:20px 36px 48px}
 .fg-dot{width:10px;height:10px;border-radius:50%}
 .fg-pct-cell{display:flex;justify-content:center;align-items:center;position:relative;padding-bottom:4px;overflow:visible}
 .fg-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
-/* Row 2: numbers — removed, numbers go above bars in row 3 */
 /* Row 3: bars */
 .fg-bar-cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:180px}
 .fg-bar-num{font-size:14px;font-weight:700;color:var(--deep);margin-bottom:4px}
@@ -151,7 +151,7 @@ main{padding:20px 36px 48px}
 <div class="stat-pills">
   <div class="stat-pill"><div class="pill-n"><span id="days-count">—</span> days</div><div class="pill-l">Since launch</div><div class="pill-sub">Launched 18 Jan 2026</div></div>
   <div class="stat-pill"><div class="pill-n" id="lu-n">—</div><div class="pill-l">Last update</div><div class="pill-sub" id="lu-sub">—</div></div>
-  <div class="stat-pill"><div class="pill-n" id="pa-n">—</div><div class="pill-sub" id="pa-sub">—</div></div>
+  <div class="stat-pill"><div class="pill-n" id="pa-n">—</div><div class="pill-sub" id="pa-sub">—</div><div class="pill-sub2" id="pa-sub2"></div></div>
 </div>
 <div id="loading"><div class="spinner"></div><p>Loading data from Google Sheets…</p></div>
 <div id="dashboard"><main>
@@ -240,6 +240,12 @@ function pD(s){
   return null;
 }
 function dB(a,b){return Math.floor((b-a)/864e5)}
+
+// Format date without leading zero on day
+function fmtDateNoZero(d){
+  var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear();
+}
 
 var ALL=[];
 function load(){fetchD().then(function(data){
@@ -335,11 +341,13 @@ function load(){fetchD().then(function(data){
   }
   buyers.sort(function(a,b){return a.name.localeCompare(b.name)});ALL=buyers;
   var active=buyers.filter(function(b){return !b.dropped}),drops=buyers.filter(function(b){return b.dropped});
-  // Pills
+  // Pills — 3rd box: line 1 = "X active buyers", line 2 = "Y approached", line 3 = "(Z drops)"
   var appA=buyers.filter(function(b){return b.approached&&!b.dropped});
   var appD=buyers.filter(function(b){return b.approached&&b.dropped});
+  var totalApproached=buyers.filter(function(b){return b.approached}).length;
   document.getElementById('pa-n').textContent=appA.length+' active buyers';
-  document.getElementById('pa-sub').innerHTML=buyers.filter(function(b){return b.approached}).length+' approached / <span style="color:#bbb">('+appD.length+' drops)</span>';
+  document.getElementById('pa-sub').textContent=totalApproached+' approached';
+  document.getElementById('pa-sub2').innerHTML='<span style="color:#bbb">('+appD.length+' drops)</span>';
   // Funnel counts
   var sM={identified:col.identified,approached:col.approached,teaser:col.teaser,nda_sent:col.nda_sent,nda_signed:col.nda_signed,im_sent:col.im_sent,mgmt:col.mgmt,loi:col.loi,phase2:col.phase2,site_visit:col.site_visit,binding:col.binding};
   var cnt={},prv={};
@@ -347,10 +355,7 @@ function load(){fetchD().then(function(data){
   else{cnt={identified:buyers.length,approached:buyers.filter(function(b){return b.approached}).length,teaser:buyers.filter(function(b){return b.teaser}).length,nda_sent:buyers.filter(function(b){return b.nda_sent}).length,nda_signed:buyers.filter(function(b){return b.nda_signed}).length,im_sent:buyers.filter(function(b){return b.im_sent}).length,mgmt:0,loi:0,phase2:0,site_visit:0,binding:0}}
   if(pR){STG.forEach(function(s){var ci=sM[s.k];prv[s.k]=(ci!==undefined&&pR[ci])?parseInt(pR[ci])||0:0})}
   // Funnel — single CSS grid: 21 columns (11 stages + 10 gaps)
-  // Row 1: dots + % between
-  // Row 2: bars with numbers above (combined)
-  // Row 3: labels
-  var nCols=STG.length*2-1; // 21
+  var nCols=STG.length*2-1;
   var gridEl=document.getElementById('funnel-grid');
   gridEl.style.gridTemplateColumns='repeat('+nCols+',1fr)';
   var mx=1;STG.forEach(function(s){if((cnt[s.k]||0)>mx)mx=cnt[s.k]});
@@ -381,7 +386,7 @@ function load(){fetchD().then(function(data){
   gridEl.innerHTML=gh;
   // Position axis line at bottom of bar cells
   setTimeout(function(){var bars=gridEl.querySelectorAll('.fg-bar-cell');if(bars.length){var rect=bars[0].getBoundingClientRect();var gridRect=gridEl.getBoundingClientRect();document.getElementById('fg-axis').style.top=(rect.bottom-gridRect.top)+'px'}},50);
-  // Pipeline — fixed 5 columns, always show all
+  // Pipeline
   var pK=['teaser','nda_sent','nda_signed','im_sent','mgmt'];
   function hp(b){for(var i=pK.length-1;i>=0;i--){if(b[pK[i]])return pK[i]}return null}
   document.getElementById('pg').style.gridTemplateColumns='repeat(5,1fr)';
@@ -441,7 +446,8 @@ function showM(name){
 
 var now=new Date();
 document.getElementById('days-count').textContent=Math.floor((now-new Date('2026-01-18'))/864e5);
-document.getElementById('lu-n').textContent=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+// Last update date — no leading zero
+document.getElementById('lu-n').textContent=fmtDateNoZero(now);
 document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 load();
 </script>
