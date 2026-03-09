@@ -50,12 +50,12 @@ main{padding:20px 36px 48px}
 .sec-line{flex:1;height:1px;background:var(--border)}
 /* FUNNEL */
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
-.funnel-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:0}
+.funnel-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:0;position:relative}
+.fg-conv-line{position:absolute;top:9px;left:calc(100%/21);right:calc(100%/21);height:1.5px;background:rgba(28,43,51,.12);z-index:0}
 /* Row 1: dots + conversion % */
 .fg-dot-cell{display:flex;justify-content:center;align-items:center;padding-bottom:4px;position:relative;z-index:2}
 .fg-dot{width:10px;height:10px;border-radius:50%}
 .fg-pct-cell{display:flex;justify-content:center;align-items:center;position:relative;padding-bottom:4px;overflow:visible}
-.fg-pct-line{position:absolute;top:50%;left:-100%;right:-100%;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%);z-index:0}
 .fg-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
 /* Row 2: numbers — removed, numbers go above bars in row 3 */
 /* Row 3: bars */
@@ -221,7 +221,20 @@ function fetchD(){return new Promise(function(res,rej){
     })
   })
 })}
-function pD(s){if(!s)return null;s=s.trim();var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(parseInt(m[1]),parseInt(m[2])-1,parseInt(m[3]));return null}
+function pD(s){
+  if(!s)return null;s=s.trim();
+  // YYYY-MM-DD
+  var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return new Date(parseInt(m[1]),parseInt(m[2])-1,parseInt(m[3]));
+  // DD/MM/YY or DD/MM/YYYY
+  var m2=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(m2){var y=parseInt(m2[3]);if(y<100)y+=2000;return new Date(y,parseInt(m2[2])-1,parseInt(m2[1]))}
+  // DD-month-YY (French: 18-janv.-26)
+  var frM={'janv':0,'févr':1,'mars':2,'avr':3,'mai':4,'juin':5,'juil':6,'août':7,'sept':8,'oct':9,'nov':10,'déc':11};
+  var m3=s.match(/^(\d{1,2})-([a-zéû]+\.?)-(\d{2,4})$/i);
+  if(m3){var mo=frM[m3[2].replace('.','').toLowerCase()];if(mo!==undefined){var y=parseInt(m3[3]);if(y<100)y+=2000;return new Date(y,mo,parseInt(m3[1]))}}
+  return null;
+}
 function dB(a,b){return Math.floor((b-a)/864e5)}
 
 var ALL=[];
@@ -260,8 +273,32 @@ function load(){fetchD().then(function(data){
   console.log('Merged headers:',JSON.stringify(col));
   // Funnel rows
   var fR=null,pR=null;for(var i=0;i<Math.min(data.length,10);i++){for(var j=0;j<data[i].length;j++){if((data[i][j]||'').indexOf('Current')>=0){fR=data[i];if(data[i+1])pR=data[i+1];break}}if(fR)break}
-  // Variation date
-  var vd='—';for(var i=0;i<Math.min(data.length,hI);i++){for(var j=0;j<data[i].length;j++){var v=(data[i][j]||'').trim();var dm=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(dm){var mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];vd=parseInt(dm[3])+'-'+mos[parseInt(dm[2])-1]+'-'+dm[1].slice(2)}}}
+  // Variation date — find "Previous update" row and read the date next to it
+  var vd='—';
+  var frMos={'janv':0,'févr':1,'mars':2,'avr':3,'mai':4,'juin':5,'juil':6,'août':7,'sept':8,'oct':9,'nov':10,'déc':11};
+  var enMos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for(var i=0;i<Math.min(data.length,hI);i++){
+    for(var j=0;j<data[i].length;j++){
+      var v=(data[i][j]||'').trim().toLowerCase();
+      if(v.indexOf('previous update')>=0||v.indexOf('previous date')>=0){
+        // Date should be in the next cell(s) on same row
+        for(var jj=j+1;jj<data[i].length;jj++){
+          var d=(data[i][jj]||'').trim();if(!d)continue;
+          // French format: 5-mars-26 or 8-mars-26
+          var fm=d.match(/^(\d{1,2})-([a-zéû]+\.?)-(\d{2,4})$/i);
+          if(fm){var mo=frMos[fm[2].replace('.','').toLowerCase()];if(mo!==undefined){vd=parseInt(fm[1])+'-'+enMos[mo]+'-'+fm[3];break}}
+          // ISO format: 2026-03-05
+          var im=d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if(im){vd=parseInt(im[3])+'-'+enMos[parseInt(im[2])-1]+'-'+im[1].slice(2);break}
+          // DD/MM/YY format
+          var sm=d.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+          if(sm){vd=parseInt(sm[1])+'-'+enMos[parseInt(sm[2])-1]+'-'+sm[3];break}
+        }
+        break;
+      }
+    }
+    if(vd!=='—')break;
+  }
   document.getElementById('vd').textContent=vd;
   // Parse buyers
   var buyers=[],now=new Date();
@@ -312,7 +349,7 @@ function load(){fetchD().then(function(data){
   gridEl.style.gridTemplateColumns='repeat('+nCols+',1fr)';
   var mx=1;STG.forEach(function(s){if((cnt[s.k]||0)>mx)mx=cnt[s.k]});
   var aw='<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>';
-  var gh='';
+  var gh='<div class="fg-conv-line"></div>';
   // Row 1: dots and %
   STG.forEach(function(s,idx){
     var col=idx*2+1;
@@ -320,7 +357,7 @@ function load(){fetchD().then(function(data){
     if(idx<STG.length-1){
       var cv=cnt[s.k]||0,nv=cnt[STG[idx+1].k]||0;
       var pct=cv>0?Math.round((nv/cv)*100)+'%':'—';
-      gh+='<div class="fg-pct-cell" style="grid-column:'+(col+1)+'"><div class="fg-pct-line"></div><div class="fg-pct">'+pct+'</div></div>';
+      gh+='<div class="fg-pct-cell" style="grid-column:'+(col+1)+'"><div class="fg-pct">'+pct+'</div></div>';
     }
   });
   // Row 2: number + bar combined in one cell
