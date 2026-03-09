@@ -73,7 +73,7 @@ main{padding:20px 36px 48px}
 /* PIPELINE */
 .pipeline-grid{display:grid;gap:10px}
 .stage-hdr{padding:9px 12px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
-.stage-hdr-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff}
+.stage-hdr-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff}
 .stage-hdr-count{background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
 .stage-body{background:var(--glass);border:1px solid var(--glass-border);border-top:none;border-radius:0 0 10px 10px;padding:8px;min-height:48px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-content:flex-start}
 .cc{background:rgba(255,255,255,.5);border:1.5px solid #fff;border-radius:8px;padding:6px 5px 5px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;width:64px}
@@ -84,7 +84,7 @@ main{padding:20px 36px 48px}
 .cc-name{font-size:7.5px;color:var(--deep);text-align:center;line-height:1.2;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .strip-section{margin-top:12px}
 .strip-hdr{padding:9px 12px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
-.strip-hdr-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff}
+.strip-hdr-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff}
 .strip-hdr-count{background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
 .strip-row{background:var(--glass);border:1px solid var(--glass-border);border-top:none;border-radius:0 0 10px 10px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 /* MODAL */
@@ -199,10 +199,11 @@ var PIP=[
   {k:'mgmt',l:'Management Pres.',c:'#00A3BE'}
 ];
 var MST=[
-  {k:'identified',l:'Identified',c:'#1C2B33'},{k:'teaser',l:'Teaser',c:'#0E6280'},
-  {k:'nda_sent',l:'NDA sent',c:'#007499'},{k:'nda_signed',l:'NDA signed',c:'#0085CA'},
-  {k:'im_sent',l:'IM sent',c:'#0093B8'},{k:'mgmt',l:'Mgmt Pres.',c:'#00A3BE'},
-  {k:'loi',l:'LOI',c:'#00B1BE'},{k:'binding',l:'Binding',c:'#00E07E'}
+  {k:'identified',l:'Identified',c:'#1C2B33'},{k:'approached',l:'Approached',c:'#1B4F63'},
+  {k:'teaser',l:'Teaser',c:'#0E6280'},{k:'nda_sent',l:'NDA sent',c:'#007499'},
+  {k:'nda_signed',l:'NDA signed',c:'#0085CA'},{k:'im_sent',l:'IM sent',c:'#0093B8'},
+  {k:'mgmt',l:'Mgmt Pres.',c:'#00A3BE'},{k:'loi',l:'LOI',c:'#00B1BE'},
+  {k:'binding',l:'Binding',c:'#00E07E'}
 ];
 var SC={identified:'#1C2B33',approached:'#1B4F63',teaser:'#0E6280',nda_sent:'#007499',nda_signed:'#0085CA',im_sent:'#0093B8',mgmt:'#00A3BE',loi:'#00B1BE',binding:'#00E07E'};
 var TK='pk_bYWEonUXSpa1_O-4n_OaKQ';
@@ -393,7 +394,7 @@ function load(){fetchD().then(function(data){
 function setupS(){var inp=document.getElementById('si'),dd=document.getElementById('sdd');
   function render(f){var list=ALL;if(f){var fl=f.toLowerCase();list=ALL.filter(function(b){return b.name.toLowerCase().indexOf(fl)>=0})}
     if(!list.length){dd.innerHTML='<div style="padding:14px;color:var(--muted);font-size:12px;text-align:center">No results</div>';dd.classList.add('open');return}
-    var h='';list.forEach(function(b){var sl=b.dropped?'Dropped':b.highest,sc=b.dropped?'#6B7B86':SC[b.hk]||'#8A9FAB';h+='<div class="si" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="si-logo">'+L(b.name,b.domain)+'</div><div class="si-name"'+(b.dropped?' style="opacity:.6"':'')+'>'+b.name+'</div><div class="si-stage" style="background:'+sc+'">'+sl+'</div></div>'});dd.innerHTML=h;dd.classList.add('open')}
+    var h='';list.forEach(function(b){var sl=b.dropped?'Drop':b.highest,sc=b.dropped?'#6B7B86':SC[b.hk]||'#8A9FAB';h+='<div class="si" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="si-logo">'+L(b.name,b.domain)+'</div><div class="si-name"'+(b.dropped?' style="opacity:.6"':'')+'>'+b.name+'</div><div class="si-stage" style="background:'+sc+'">'+sl+'</div></div>'});dd.innerHTML=h;dd.classList.add('open')}
   inp.addEventListener('focus',function(){render(inp.value)});inp.addEventListener('input',function(){render(inp.value)});document.addEventListener('click',function(e){if(!e.target.closest('.search-wrap'))dd.classList.remove('open')})}
 
 function fmtD(d){if(!d)return'';var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=d.split(/[\/\.]/);if(p.length>=2){var day=p[0],mon=parseInt(p[1])-1;if(mon>=0&&mon<12)return day+'-'+m[mon]}return d}
@@ -404,7 +405,7 @@ function showM(name){
   document.getElementById('sdd').classList.remove('open');
   document.getElementById('ml').innerHTML=L(b.name,b.domain,true);
   document.getElementById('mn').textContent=b.name;
-  document.getElementById('mb').innerHTML=b.dropped?'<div class="md-badge" style="background:rgba(224,72,72,.07);border:1px solid rgba(224,72,72,.15);color:var(--red)">↩ Dropped</div>':'<div class="md-badge" style="background:var(--blue-light);border:1px solid #BCD9ED;color:var(--blue)">● '+b.highest+'</div>';
+  document.getElementById('mb').innerHTML=b.dropped?'<div class="md-badge" style="background:rgba(224,72,72,.07);border:1px solid rgba(224,72,72,.15);color:var(--red)">↩ Drop</div>':'<div class="md-badge" style="background:var(--blue-light);border:1px solid #BCD9ED;color:var(--blue)">● '+b.highest+'</div>';
   if(b.dis!==null&&!b.dropped){document.getElementById('mt').innerHTML='<span style="color:'+SC[b.hk]+';font-style:italic">'+b.dis+' days in current stage</span>'}else{document.getElementById('mt').innerHTML=''}
   // Stage progress
   var hi=0;for(var si=0;si<MST.length;si++){if(MST[si].k===b.hk){hi=si;break}}
