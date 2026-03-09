@@ -228,7 +228,27 @@ function load(){fetchD().then(function(data){
   for(var ri=0;ri<hI;ri++){for(var ci=0;ci<data[ri].length;ci++){if((!H[ci]||!H[ci].trim())&&data[ri][ci]&&data[ri][ci].trim()){console.log('Filling col '+ci+' with: '+data[ri][ci]);H[ci]=data[ri][ci]}}}
   console.log('After merge:',JSON.stringify(H));
   var col={};
-  for(var i=0;i<H.length;i++){var l=(H[i]||'').toLowerCase().trim();if(l==='company')col.name=i;if(l==='domain')col.domain=i;if(l==='contact')col.contact=i;if(l==='title')col.title=i;if(l==='email')col.email=i;if(l==='status')col.status=i;if(l==='comments'||l==='comment')col.comments=i;if(l==='next step'||l==='next steps')col.next=i;if(l==='identified')col.identified=i;if(l==='approached')col.approached=i;if(l.indexOf('teaser')>=0)col.teaser=i;if(l==='nda sent')col.nda_sent=i;if(l==='nda signed')col.nda_signed=i;if(l.indexOf('im shared')>=0||l.indexOf('im sent')>=0||l==='im')col.im_sent=i;if(l.indexOf('mgmt')>=0||l.indexOf('management')>=0)col.mgmt=i;if(l==='loi')col.loi=i;if(l.indexOf('phase')>=0)col.phase2=i;if(l.indexOf('site')>=0)col.site_visit=i;if(l.indexOf('binding')>=0)col.binding=i}
+  for(var i=0;i<H.length;i++){var l=(H[i]||'').toLowerCase().trim();
+    if(l==='company'&&col.name===undefined)col.name=i;
+    if(l==='domain'&&col.domain===undefined)col.domain=i;
+    if(l==='contact'&&col.contact===undefined)col.contact=i;
+    if(l==='title'&&col.title===undefined)col.title=i;
+    if(l==='email'&&col.email===undefined)col.email=i;
+    if(l==='status'&&col.status===undefined)col.status=i;
+    if((l==='comments'||l==='comment')&&col.comments===undefined)col.comments=i;
+    if((l==='next step'||l==='next steps')&&col.next===undefined)col.next=i;
+    if(l==='identified'&&col.identified===undefined)col.identified=i;
+    if(l==='approached'&&col.approached===undefined)col.approached=i;
+    if(l.indexOf('teaser')>=0&&col.teaser===undefined)col.teaser=i;
+    if(l==='nda sent'&&col.nda_sent===undefined)col.nda_sent=i;
+    if(l==='nda signed'&&col.nda_signed===undefined)col.nda_signed=i;
+    if((l.indexOf('im shared')>=0||l.indexOf('im sent')>=0||l==='im')&&col.im_sent===undefined)col.im_sent=i;
+    if((l.indexOf('mgmt')>=0||l.indexOf('management')>=0)&&col.mgmt===undefined)col.mgmt=i;
+    if(l==='loi'&&col.loi===undefined)col.loi=i;
+    if(l.indexOf('phase')>=0&&col.phase2===undefined)col.phase2=i;
+    if(l.indexOf('site')>=0&&col.site_visit===undefined)col.site_visit=i;
+    if(l.indexOf('binding')>=0&&col.binding===undefined)col.binding=i;
+  }
   console.log('Merged headers:',JSON.stringify(col));
   // Funnel rows
   var fR=null,pR=null;for(var i=0;i<Math.min(data.length,10);i++){for(var j=0;j<data[i].length;j++){if((data[i][j]||'').indexOf('Current')>=0){fR=data[i];if(data[i+1])pR=data[i+1];break}}if(fR)break}
