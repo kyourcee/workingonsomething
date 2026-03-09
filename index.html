@@ -49,11 +49,11 @@ main{padding:20px 36px 48px}
 /* FUNNEL */
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
 /* Conversion flow above chart */
-.conv-flow{display:flex;align-items:center;margin-bottom:16px;padding:0 8px}
-.conv-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;z-index:1}
-.conv-connector{flex:1;position:relative;display:flex;align-items:center;justify-content:center;height:12px}
-.conv-connector-line{position:absolute;top:50%;left:0;right:0;height:2px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
-.conv-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
+.conv-flow{display:flex;align-items:center;margin-bottom:14px;padding:0 4px}
+.conv-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;z-index:1}
+.conv-connector{flex:1;position:relative;display:flex;align-items:center;justify-content:center;height:2px}
+.conv-connector-line{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(28,43,51,.08)}
+.conv-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:1px 6px;border-radius:10px;border:1px solid rgba(28,43,51,.06);position:relative;z-index:1}
 .funnel-bars{display:flex;align-items:flex-end;gap:0;height:180px;position:relative}
 .f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;position:relative}
 .f-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:4px}
@@ -117,10 +117,8 @@ main{padding:20px 36px 48px}
 .modal-detail-item .dt{font-size:11px;color:var(--muted)}
 .next-step-box{background:#E8F8F0;border:1px solid rgba(0,201,160,.15);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--deep);margin-top:12px}
 .next-step-box label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:700;display:block;margin-bottom:5px}
-.drop-reason-box{background:#FEF5F5;border:1px solid rgba(224,72,72,.12);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--deep);margin-top:12px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
-.drop-reason-box .drop-date{font-size:9px;font-weight:600;color:var(--deep);background:#fff;border:1px solid rgba(28,43,51,.1);padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.drop-reason-box .drop-label{font-size:13px;font-weight:700;color:var(--red)}
-.drop-reason-box .drop-text{font-size:13px;color:var(--deep)}
+.drop-reason-box{background:#FEF5F5;border:1px solid rgba(224,72,72,.12);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--deep);margin-top:12px}
+.drop-reason-box label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--red);font-weight:700;display:block;margin-bottom:5px}
 .interactions-box{margin-top:14px;background:#fff;border:1px solid rgba(28,43,51,.06);border-radius:12px;padding:16px;max-height:280px;overflow-y:auto;box-shadow:0 2px 8px rgba(28,43,51,.04)}
 .interactions-box label{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:600;display:block;margin-bottom:12px}
 .interaction-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(28,43,51,.04)}
@@ -323,7 +321,7 @@ function showModal(name){
   if(!b.contact&&!b.email)g+='<div class="modal-detail-item"><div class="dl">Info</div><div class="dv" style="color:var(--muted)">No contact info</div></div>';
   g+='</div>';document.getElementById('modal-details').innerHTML=g;
   // Next step / drop reason
-  if(b.dropped){var dr='',dropDate='';var ints=pI(b.comments);for(var i=0;i<ints.length;i++){if(ints[i].text.toLowerCase().indexOf('drop')>=0){var rawText=ints[i].text;dr=rawText.replace(/^drop\s*[-–—>:]+\s*/i,'').replace(/^-->\s*/,'').trim();if(ints[i].date)dropDate=ints[i].date;break}}if(!dr&&b.next)dr=b.next;var dh='';if(dr){dh='<div class="drop-reason-box">';if(dropDate)dh+='<div class="drop-date">'+dropDate+'</div>';dh+='<div class="drop-label">Drop</div><div class="drop-text">— '+dr+'</div></div>'}document.getElementById('modal-nextstep').innerHTML=dh}
+  if(b.dropped){var dr='',dropDate='';var ints=pI(b.comments);for(var i=0;i<ints.length;i++){if(ints[i].text.toLowerCase().indexOf('drop')>=0){dr=ints[i].text.replace(/^drop\s*[-–—>:]+\s*/i,'').replace(/^-->\s*/,'').trim();if(ints[i].date)dropDate=ints[i].date;break}}if(!dr&&b.next)dr=b.next;var dropHtml='';if(dr){dropHtml='<div class="drop-reason-box"><label>Drop reason</label>';if(dropDate)dropHtml+='<span style="display:inline-flex;align-items:center;font-size:9px;font-weight:600;color:var(--deep);background:#fff;border:1px solid rgba(28,43,51,.1);padding:3px 10px;border-radius:20px;margin-right:8px">'+dropDate+'</span>';dropHtml+=dr+'</div>'}document.getElementById('modal-nextstep').innerHTML=dropHtml}
   else{document.getElementById('modal-nextstep').innerHTML=b.next?'<div class="next-step-box"><label>Next step</label>'+b.next+'</div>':''}
   // Interactions
   var ints=pI(b.comments);var fi=b.dropped?ints.filter(function(x){return x.text.toLowerCase().indexOf('drop')<0}):ints;
