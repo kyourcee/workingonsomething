@@ -48,23 +48,20 @@ main{padding:20px 36px 48px}
 .sec-line{flex:1;height:1px;background:var(--border)}
 /* FUNNEL */
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
-/* Conversion flow — integrated above bars */
-.conv-flow{display:none}
-.funnel-conv-row{display:flex;align-items:center;margin-bottom:6px}
-.funnel-conv-row .fc-spacer{width:0;flex:1 1 0}
-.funnel-conv-row .fc-arrow{flex:1 1 0;display:flex;align-items:center;justify-content:center;position:relative}
-.fc-arrow-line{position:absolute;top:50%;left:8px;right:8px;height:1px;background:rgba(28,43,51,.12)}
-.fc-arrow-head{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:0;height:0;border-left:4px solid rgba(28,43,51,.15);border-top:3px solid transparent;border-bottom:3px solid transparent}
-.fc-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
-.funnel-bars{display:flex;align-items:flex-end;gap:0;height:170px}
-.f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+/* Conversion flow above chart */
+.conv-flow{display:flex;align-items:center;margin-bottom:16px;padding:0 8px}
+.conv-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;z-index:1}
+.conv-connector{flex:1;position:relative;display:flex;align-items:center;justify-content:center;height:12px}
+.conv-connector-line{position:absolute;top:50%;left:0;right:0;height:2px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
+.conv-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
+.funnel-bars{display:flex;align-items:flex-end;gap:0;height:180px;position:relative}
+.f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;position:relative}
 .f-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:4px}
 .f-num{font-size:11px;font-weight:600;color:var(--deep);line-height:1}
 .f-bar{width:60%;border-radius:6px 6px 0 0;min-height:6px;display:flex;align-items:center;justify-content:center;transition:height .6s cubic-bezier(.34,1.56,.64,1)}
 .f-arrow{font-size:8px;font-weight:600;padding:2px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;color:#fff;background:rgba(255,255,255,.22)}
 .f-label-row{height:30px;width:100%;display:flex;align-items:flex-start;justify-content:center;padding-top:5px}
 .f-label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;color:var(--deep);text-align:center;line-height:1.3;font-weight:600;word-break:break-word}
-.funnel-conv-legend{font-size:8px;color:var(--muted);margin-bottom:8px;padding-left:2px}
 .funnel-footer{display:flex;align-items:center;gap:14px;margin-top:8px;padding:0 2px}
 .funnel-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .funnel-legend span{font-size:9px;color:var(--muted);display:inline-flex;align-items:center;gap:3px}
@@ -121,7 +118,7 @@ main{padding:20px 36px 48px}
 .next-step-box{background:#E8F8F0;border:1px solid rgba(0,201,160,.15);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--deep);margin-top:12px}
 .next-step-box label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:700;display:block;margin-bottom:5px}
 .drop-reason-box{background:#FEF5F5;border:1px solid rgba(224,72,72,.12);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--deep);margin-top:12px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
-.drop-reason-box .drop-date{font-size:9px;font-weight:600;color:var(--red);background:#fff;border:1px solid rgba(224,72,72,.3);padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.drop-reason-box .drop-date{font-size:9px;font-weight:600;color:var(--deep);background:#fff;border:1px solid rgba(28,43,51,.1);padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
 .drop-reason-box .drop-label{font-size:13px;font-weight:700;color:var(--red)}
 .drop-reason-box .drop-text{font-size:13px;color:var(--deep)}
 .interactions-box{margin-top:14px;background:#fff;border:1px solid rgba(28,43,51,.06);border-radius:12px;padding:16px;max-height:280px;overflow-y:auto;box-shadow:0 2px 8px rgba(28,43,51,.04)}
@@ -171,8 +168,7 @@ main{padding:20px 36px 48px}
 <div id="dashboard"><main>
   <div class="sec"><div class="sec-head"><div class="sec-lbl">Deal Funnel</div><div class="sec-line"></div></div>
     <div class="funnel-wrap">
-      <div class="funnel-conv-legend">% = conversion rate between each stage</div>
-      <div id="funnel-conv-row" class="funnel-conv-row"></div>
+      <div id="conv-flow" class="conv-flow"></div>
       <div class="funnel-bars" id="funnel-bars"></div>
       <div class="funnel-footer">
         <div class="funnel-legend">
@@ -266,19 +262,12 @@ function load(){fd().then(function(data){
   if(funnelRow){STAGES.forEach(function(s){var ci=stMap[s.key];counts[s.key]=(ci!==undefined&&funnelRow[ci])?parseInt(funnelRow[ci])||0:0})}
   else{counts={identified:buyers.length,approached:buyers.filter(function(b){return b.approached}).length,teaser:buyers.filter(function(b){return b.teaser}).length,nda_sent:buyers.filter(function(b){return b.nda_sent}).length,nda_signed:buyers.filter(function(b){return b.nda_signed}).length,im_sent:buyers.filter(function(b){return b.im_sent}).length,mgmt:0,loi:0,phase2:0,site_visit:0,binding:0}}
   if(prevRow){STAGES.forEach(function(s){var ci=stMap[s.key];prev[s.key]=(ci!==undefined&&prevRow[ci])?parseInt(prevRow[ci])||0:0})}
-  // Conversion row above chart — same flex layout as bars, arrows between
-  var cr='';
-  STAGES.forEach(function(s,idx){
-    if(idx===0){cr+='<div class="fc-spacer"></div>'}
-    else{
-      var prevV=counts[STAGES[idx-1].key]||0;var curV=counts[s.key]||0;
-      var pct=prevV>0?Math.round((curV/prevV)*100)+'%':'';
-      cr+='<div class="fc-arrow"><div class="fc-arrow-line"></div><div class="fc-arrow-head"></div>'+(pct?'<div class="fc-pct">'+pct+'</div>':'')+'</div>';
-      cr+='<div class="fc-spacer"></div>';
-    }
-  });
-  document.getElementById('funnel-conv-row').innerHTML=cr;
-  // Funnel bars
+  // Conversion flow above chart (dots + lines + %)
+  var cf='';STAGES.forEach(function(s,idx){
+    cf+='<div class="conv-dot" style="background:'+s.color+'"></div>';
+    if(idx<STAGES.length-1){var cur=counts[s.key]||0;var nxt=counts[STAGES[idx+1].key]||0;var pct=cur>0?Math.round((nxt/cur)*100)+'%':'';cf+='<div class="conv-connector"><div class="conv-connector-line"></div>'+(pct?'<div class="conv-pct">'+pct+'</div>':'')+'</div>'}
+  });document.getElementById('conv-flow').innerHTML=cf;
+  // Funnel bars (numbers above, no conversion bubbles)
   var mx=1;STAGES.forEach(function(s){if((counts[s.key]||0)>mx)mx=counts[s.key]});
   var arw='<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>';
   var fh='';STAGES.forEach(function(s){
