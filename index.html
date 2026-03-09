@@ -50,12 +50,11 @@ main{padding:20px 36px 48px}
 .sec-line{flex:1;height:1px;background:var(--border)}
 /* FUNNEL */
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
-.conv-row{display:flex;align-items:center;margin-bottom:10px}
+.conv-row{display:flex;align-items:center;margin-bottom:10px;position:relative}
 .conv-row .cr-col{width:0;flex:1 1 0;display:flex;justify-content:center;position:relative;z-index:2}
 .cr-dot{width:10px;height:10px;border-radius:50%}
-.conv-row .cr-mid{width:0;flex:1 1 0;display:flex;align-items:center;justify-content:center;position:relative;height:14px}
-.cr-line{position:absolute;top:50%;left:-5px;right:-5px;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
-.cr-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
+.cr-pct{position:absolute;font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);z-index:3;white-space:nowrap;transform:translateX(50%);right:0;top:-1px}
+.cr-fullline{position:absolute;top:50%;left:0;right:0;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%);z-index:1}
 .funnel-bars{display:flex;align-items:flex-end;gap:0;height:170px}
 .f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
 .f-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:4px}
@@ -156,7 +155,7 @@ main{padding:20px 36px 48px}
       <div id="conv-row" class="conv-row"></div>
       <div class="funnel-bars" id="fb"></div>
       <div class="funnel-footer"><div class="funnel-legend">
-        <div class="legend-item"><div class="legend-bubble"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>+2</div> Variation since <strong id="vd">—</strong></div>
+        <div class="legend-item"><div class="legend-bubble"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>+x</div> Variation since <span id="vd">—</span></div>
         <div class="legend-item"><div class="legend-bubble">–</div> No change</div>
         <div class="legend-item"><div class="legend-bubble">x%</div> Conversion rate between each stage</div>
       </div></div>
@@ -261,7 +260,7 @@ function load(){fetchD().then(function(data){
   // Funnel rows
   var fR=null,pR=null;for(var i=0;i<Math.min(data.length,10);i++){for(var j=0;j<data[i].length;j++){if((data[i][j]||'').indexOf('Current')>=0){fR=data[i];if(data[i+1])pR=data[i+1];break}}if(fR)break}
   // Variation date
-  var vd='—';for(var i=0;i<Math.min(data.length,hI);i++){for(var j=0;j<data[i].length;j++){var v=(data[i][j]||'').trim();var dm=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(dm){var mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];vd=dm[3]+'-'+mos[parseInt(dm[2])-1]+'-'+dm[1].slice(2)}}}
+  var vd='—';for(var i=0;i<Math.min(data.length,hI);i++){for(var j=0;j<data[i].length;j++){var v=(data[i][j]||'').trim();var dm=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(dm){var mos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];vd=parseInt(dm[3])+'-'+mos[parseInt(dm[2])-1]+'-'+dm[1].slice(2)}}}
   document.getElementById('vd').textContent=vd;
   // Parse buyers
   var buyers=[],now=new Date();
@@ -303,10 +302,12 @@ function load(){fetchD().then(function(data){
   if(fR){STG.forEach(function(s){var ci=sM[s.k];cnt[s.k]=(ci!==undefined&&fR[ci])?parseInt(fR[ci])||0:0})}
   else{cnt={identified:buyers.length,approached:buyers.filter(function(b){return b.approached}).length,teaser:buyers.filter(function(b){return b.teaser}).length,nda_sent:buyers.filter(function(b){return b.nda_sent}).length,nda_signed:buyers.filter(function(b){return b.nda_signed}).length,im_sent:buyers.filter(function(b){return b.im_sent}).length,mgmt:0,loi:0,phase2:0,site_visit:0,binding:0}}
   if(pR){STG.forEach(function(s){var ci=sM[s.k];prv[s.k]=(ci!==undefined&&pR[ci])?parseInt(pR[ci])||0:0})}
-  // Conv row — dots aligned with bars, % between, connected by line
-  var cr='';STG.forEach(function(s,idx){
-    cr+='<div class="cr-col"><div class="cr-dot" style="background:'+s.c+'"></div></div>';
-    if(idx<STG.length-1){var cv=cnt[s.k]||0,nv=cnt[STG[idx+1].k]||0;var pct=cv>0?Math.round((nv/cv)*100)+'%':'—';cr+='<div class="cr-mid"><div class="cr-line"></div><div class="cr-pct">'+pct+'</div></div>'}
+  // Conv row — same flex:1 1 0 as funnel bars, one dot per stage, % positioned between dots
+  var cr='<div class="cr-fullline"></div>';
+  STG.forEach(function(s,idx){
+    var pctHtml='';
+    if(idx<STG.length-1){var cv=cnt[s.k]||0,nv=cnt[STG[idx+1].k]||0;var pct=cv>0?Math.round((nv/cv)*100)+'%':'—';pctHtml='<div class="cr-pct">'+pct+'</div>'}
+    cr+='<div class="cr-col"><div class="cr-dot" style="background:'+s.c+'"></div>'+pctHtml+'</div>';
   });document.getElementById('conv-row').innerHTML=cr;
   // Funnel bars
   var mx=1;STG.forEach(function(s){if((cnt[s.k]||0)>mx)mx=cnt[s.k]});
