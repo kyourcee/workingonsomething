@@ -50,13 +50,12 @@ main{padding:20px 36px 48px}
 .sec-line{flex:1;height:1px;background:var(--border)}
 /* FUNNEL */
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
-.conv-legend{font-size:8px;color:var(--muted);margin-bottom:6px;padding-left:2px}
 .conv-row{display:flex;align-items:center;margin-bottom:10px}
-.conv-row .cr-col{width:0;flex:1 1 0;display:flex;justify-content:center}
+.conv-row .cr-col{width:0;flex:1 1 0;display:flex;justify-content:center;position:relative;z-index:2}
 .cr-dot{width:10px;height:10px;border-radius:50%}
 .conv-row .cr-mid{width:0;flex:1 1 0;display:flex;align-items:center;justify-content:center;position:relative;height:14px}
-.cr-line{position:absolute;top:50%;left:0;right:0;height:1.5px;background:rgba(28,43,51,.1);transform:translateY(-50%)}
-.cr-pct{font-size:8px;font-weight:600;color:var(--muted);background:#fff;padding:2px 6px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
+.cr-line{position:absolute;top:50%;left:-5px;right:-5px;height:1.5px;background:rgba(28,43,51,.12);transform:translateY(-50%)}
+.cr-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
 .funnel-bars{display:flex;align-items:flex-end;gap:0;height:170px}
 .f-col{width:0;flex:1 1 0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
 .f-top{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:4px}
@@ -65,9 +64,10 @@ main{padding:20px 36px 48px}
 .f-arr{font-size:8px;font-weight:600;padding:2px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;color:#fff;background:rgba(255,255,255,.22)}
 .f-lbl-row{height:30px;width:100%;display:flex;align-items:flex-start;justify-content:center;padding-top:5px}
 .f-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.04em;color:var(--deep);text-align:center;line-height:1.3;font-weight:600;word-break:break-word}
-.funnel-footer{display:flex;align-items:center;gap:14px;margin-top:8px;padding:0 2px}
-.funnel-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.funnel-legend span{font-size:9px;color:var(--muted);display:inline-flex;align-items:center;gap:3px}
+.funnel-footer{display:flex;align-items:center;gap:10px;margin-top:10px;padding:0 2px;flex-wrap:wrap}
+.funnel-legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.legend-item{font-size:9px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.legend-bubble{display:inline-flex;align-items:center;gap:3px;background:#fff;border:1px solid rgba(28,43,51,.08);padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;color:var(--muted)}
 .funnel-legend strong{color:var(--deep);font-weight:600}
 /* PIPELINE */
 .pipeline-grid{display:grid;gap:10px}
@@ -153,12 +153,12 @@ main{padding:20px 36px 48px}
 <div id="dashboard"><main>
   <div class="sec"><div class="sec-head"><div class="sec-lbl">Deal Funnel</div><div class="sec-line"></div></div>
     <div class="funnel-wrap">
-      <div class="conv-legend">% = conversion rate between each stage</div>
       <div id="conv-row" class="conv-row"></div>
       <div class="funnel-bars" id="fb"></div>
       <div class="funnel-footer"><div class="funnel-legend">
-        <span><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg> Variation since <strong id="vd">—</strong></span>
-        <span style="margin-left:6px">– No change</span>
+        <div class="legend-item"><div class="legend-bubble"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>+2</div> Variation since <strong id="vd">—</strong></div>
+        <div class="legend-item"><div class="legend-bubble">–</div> No change</div>
+        <div class="legend-item"><div class="legend-bubble">x%</div> Conversion rate between each stage</div>
       </div></div>
     </div>
   </div>
