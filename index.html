@@ -273,6 +273,8 @@ function I(n){if(!n)return'??';var w=n.trim().split(/\s+/);return w.length===1?w
 function S(n){if(!n)return'';var s=n.replace(/\s*\(.*?\)\s*/g,'').trim();s=s.replace('Pharmaceuticals','Pharma').replace('Healthcare','Health').replace('Tablets India Limited','Tablets India');if(s.length>14){var p=s.split(/[\s-]+/);if(p.length>2)s=p.slice(0,2).join(' ')}return s}
 function L(n,d,m){var dom=d||'',i=I(n);if(dom){if(m)return'<img src="https://img.logo.dev/'+dom+'?token='+TK+'&format=png&size=120" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="init" style="display:none">'+i+'</div>';return'<img src="https://img.logo.dev/'+dom+'?token='+TK+'&format=png&size=120" onerror="this.parentElement.innerHTML=\'<div class=init>'+i+'</div>\'">'}return'<div class="init">'+i+'</div>'}
 function card(b){return'<div class="cc" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="cc-logo">'+L(b.name,b.domain)+'</div><div class="cc-name">'+S(b.name)+'</div></div>'}
+function hexToRgb(hex){hex=hex.replace('#','');return parseInt(hex.substring(0,2),16)+','+parseInt(hex.substring(2,4),16)+','+parseInt(hex.substring(4,6),16)}
+function badge(label,color){var rgb=hexToRgb(color);return'<div style="font-size:8px;font-weight:700;color:'+color+';padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:rgba('+rgb+',.1);border:1px solid rgba('+rgb+',.2)">'+label+'</div>'}
 function fmtDateNoZero(d){var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear()}
 function csvP(t){var rows=[],row=[],cell='',q=false;for(var i=0;i<t.length;i++){var c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c}else{if(c==='"')q=true;else if(c===','){row.push(cell);cell=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(cell);cell='';if(row.length>1||row[0]!=='')rows.push(row);row=[]}else cell+=c}}row.push(cell);if(row.length>1||row[0]!=='')rows.push(row);return rows}
 function fetchD(){return new Promise(function(res,rej){
@@ -452,8 +454,6 @@ function showStage(stageKey,stageLabel,stageColor){
   var stgIdx=-1;for(var i=0;i<STG.length;i++){if(STG[i].k===stageKey){stgIdx=i;break}}
   var isEarly=(stageKey==='identified'||stageKey==='approached');
 
-  function badge(label,color){return'<div style="font-size:8px;font-weight:700;color:'+color+';padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:'+color+'14;border:1px solid '+color+'30">'+label+'</div>'}
-
   function row(b,rightHtml){
     return'<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'"><div class="sm-logo">'+L(b.name,b.domain)+'</div><div class="sm-name" style="flex:1">'+b.name+'</div>'+rightHtml+'</div>';
   }
@@ -463,7 +463,8 @@ function showStage(stageKey,stageLabel,stageColor){
   }
 
   // Title
-  document.getElementById('mo2-title').innerHTML='<div style="width:14px;height:14px;border-radius:50%;background:'+stageColor+';flex-shrink:0"></div><div style="font-size:18px;font-weight:700;color:var(--deep)">'+stageLabel+'</div><div style="color:'+stageColor+';background:'+stageColor+'14;border:1px solid '+stageColor+'30;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:auto">'+list.length+' buyer'+(list.length>1?'s':'')+'</div>';
+  var scRgb=hexToRgb(stageColor);
+  document.getElementById('mo2-title').innerHTML='<div style="width:14px;height:14px;border-radius:50%;background:'+stageColor+';flex-shrink:0"></div><div style="font-size:18px;font-weight:700;color:var(--deep)">'+stageLabel+'</div><div style="color:'+stageColor+';background:rgba('+scRgb+',.1);border:1px solid rgba('+scRgb+',.2);font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:auto">'+list.length+' buyer'+(list.length>1?'s':'')+'</div>';
 
   var h='';
 
@@ -619,8 +620,6 @@ function doRefresh(){
       if(!found)changes.push({type:'removed',name:n,domain:snap[n]?'':''});
     });
 
-    // Badge helper
-    function cbadge(label,color){return'<div style="font-size:8px;font-weight:700;color:'+color+';padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:'+color+'14;border:1px solid '+color+'30">'+label+'</div>'}
     // Find stage label+color by key
     function stgInfo(k){for(var i=0;i<STG.length;i++){if(STG[i].k===k)return STG[i]}return{l:k,c:'#8A9FAB'}}
 
@@ -633,24 +632,27 @@ function doRefresh(){
     }else{
       var h='';
       changes.forEach(function(c){
-        h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(28,43,51,.05)">';
-        h+='<div class="sm-logo">'+L(c.name,c.domain)+'</div>';
-        h+='<div style="font-size:13px;font-weight:600;color:var(--deep);flex:1">'+c.name+'</div>';
+        // Row: same layout as search dropdown
+        h+='<div class="si" style="cursor:default;padding:8px 10px">';
+        h+='<div class="si-logo">'+L(c.name,c.domain)+'</div>';
+        h+='<div class="si-name">'+c.name+'</div>';
+        // Right side: badges
+        h+='<div style="display:flex;align-items:center;gap:5px;flex-shrink:0">';
         if(c.type==='new'){
           var nb=ALL.filter(function(b){return b.name===c.name})[0];
-          var info=nb?stgInfo(nb.hk):{l:'New',c:'var(--green)'};
-          h+=cbadge(info.l,info.c);
+          var info=nb?stgInfo(nb.hk):{l:'New',c:'#00C9A0'};
+          h+=badge(info.l,info.c);
         }else if(c.type==='move'){
           var oldI=stgInfo(c.oldHk),newI=stgInfo(c.newHk);
-          h+=cbadge(oldI.l,oldI.c);
-          h+='<span style="color:var(--muted);font-size:11px;margin:0 2px">\u2192</span>';
-          h+=cbadge(newI.l,newI.c);
+          h+=badge(oldI.l,oldI.c);
+          h+='<span style="color:var(--muted);font-size:10px">\u2192</span>';
+          h+=badge(newI.l,newI.c);
         }else if(c.type==='drop'){
-          h+=cbadge('Drop','#E04848');
+          h+=badge('Drop','#E04848');
         }else if(c.type==='removed'){
-          h+=cbadge('Removed','#8A9FAB');
+          h+=badge('Removed','#8A9FAB');
         }
-        h+='</div>';
+        h+='</div></div>';
       });
       document.getElementById('mo3-body').innerHTML=h;
     }
