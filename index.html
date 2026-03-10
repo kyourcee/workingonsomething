@@ -315,7 +315,8 @@ function load(){fetchD().then(function(data){
   // Parse buyers
   var buyers=[],now=new Date();
   for(var i=hI+1;i<data.length;i++){var row=data[i];var name=(row[col.name]||'').trim();if(!name)continue;
-    var nl=name.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();if(!nl)continue;var skipWords=['edit','date','active','previous','current','active / drop','active drop'];var skipStages=['identified','approached','teaser','teaser sent','nda sent','nda signed','im sent','im shared','management pres','management presentation','mgmt','mgmt pres','loi','phase ii','phase 2','site visit','binding offer','binding','drop','drops'];var skip=false;for(var sw=0;sw<skipWords.length;sw++){if(nl===skipWords[sw]||nl.indexOf('edit the')>=0){skip=true;break}}if(!skip){for(var ss=0;ss<skipStages.length;ss++){if(nl===skipStages[ss]){skip=true;break}}}if(skip)continue;
+    // Skip separator rows: only column A (company name) is filled, all others empty
+    var hasOtherData=false;for(var ci=0;ci<row.length;ci++){if(ci===col.name)continue;if((row[ci]||'').trim()){hasOtherData=true;break}}if(!hasOtherData)continue;
     var st=(col.status!==undefined?(row[col.status]||''):'').trim().toLowerCase();var dr=st.indexOf('drop')>=0;
     var dm=(col.domain!==undefined?(row[col.domain]||''):'').trim();
     var cm=(col.comments!==undefined?(row[col.comments]||''):'').trim();
