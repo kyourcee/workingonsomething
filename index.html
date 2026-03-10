@@ -185,7 +185,7 @@ main{padding:8px 20px 10px}
 <body>
 <header>
   <div class="logo-text"><h1>Contact log - Project EDELWEISS</h1></div>
-  <div class="header-r"><div class="live-badge"><span class="live-dot"></span>Live</div><button class="hbtn" onclick="location.reload()">↻ Refresh</button><button class="hbtn" onclick="window.print()">⎙ PDF</button></div>
+  <div class="header-r"><div class="live-badge"><span class="live-dot"></span>Live</div><button class="hbtn" onclick="doRefresh()">↻ Refresh</button><button class="hbtn" onclick="window.print()">⎙ PDF</button></div>
 </header>
 <div class="search-wrap">
   <input class="search-input" id="si" type="text" placeholder="Search a counterparty…" autocomplete="off">
@@ -233,6 +233,16 @@ main{padding:8px 20px 10px}
     <button class="md-x" onclick="document.getElementById('mo2').classList.remove('open')">✕</button>
     <div id="mo2-title" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:40px"></div>
     <div id="mo2-list" style="max-height:60vh;overflow-y:auto"></div>
+</div>
+</div>
+<div class="mo" id="mo3" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="md" style="max-width:460px">
+    <button class="md-x" onclick="document.getElementById('mo3').classList.remove('open')">✕</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:40px">
+      <div style="font-size:18px;font-weight:700;color:var(--deep)">What changed</div>
+      <div style="font-size:11px;color:var(--muted);margin-left:auto" id="mo3-time"></div>
+    </div>
+    <div id="mo3-body" style="max-height:60vh;overflow-y:auto"></div>
   </div>
 </div>
 <script>
@@ -288,7 +298,7 @@ function pD(s){
 function dB(a,b){return Math.floor((b-a)/864e5)}
 
 var ALL=[];
-function load(){fetchD().then(function(data){
+function load(onDone){fetchD().then(function(data){
   var hI=-1;for(var i=0;i<Math.min(data.length,15);i++){for(var j=0;j<data[i].length;j++){if((data[i][j]||'').toLowerCase().trim()==='company'){hI=i;break}}if(hI>=0)break}
   if(hI<0){document.getElementById('loading').innerHTML='<p style="color:var(--red)">Header not found</p>';return}
   var H=data[hI].slice();
@@ -425,7 +435,7 @@ function load(){fetchD().then(function(data){
   var noT=active.filter(function(b){return b.approached&&!b.teaser});var s1='';if(noT.length){s1='<div class="strip-hdr" style="background:#1B4F63"><div class="strip-hdr-name">Approached but no teaser</div><div class="strip-hdr-count">'+noT.length+'</div></div><div class="strip-row">'+noT.map(card).join('')+'</div>'}document.getElementById('sa').innerHTML=s1;
   var noA=active.filter(function(b){return !b.approached});var s2='';if(noA.length){s2='<div class="strip-hdr" style="background:#1C2B33"><div class="strip-hdr-name">Identified but not approached</div><div class="strip-hdr-count">'+noA.length+'</div></div><div class="strip-row">'+noA.map(function(b){return'<div class="cc" style="opacity:.6" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="cc-logo">'+L(b.name,b.domain)+'</div><div class="cc-name">'+S(b.name)+'</div></div>'}).join('')+'</div>'}document.getElementById('sid').innerHTML=s2;
   var s3='';if(drops.length){s3='<div class="strip-hdr" style="background:#6B7B86"><div class="strip-hdr-name">Drops</div><div class="strip-hdr-count">'+drops.length+'</div></div><div class="strip-row">'+drops.map(function(b){return'<div class="cc" style="filter:grayscale(60%);opacity:.7" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="cc-logo">'+L(b.name,b.domain)+'</div><div class="cc-name">'+S(b.name)+'</div></div>'}).join('')+'</div>'}document.getElementById('sdr').innerHTML=s3;
-  setupS();document.getElementById('loading').style.display='none';document.getElementById('dashboard').style.display='block';
+  setupS();document.getElementById('loading').style.display='none';document.getElementById('dashboard').style.display='block';if(onDone)onDone();
 }).catch(function(e){console.error(e);document.getElementById('loading').innerHTML='<p style="color:var(--red)">Error: '+e+'</p>'})}
 
 function setupS(){var inp=document.getElementById('si'),dd=document.getElementById('sdd');
@@ -567,6 +577,71 @@ window.addEventListener('afterprint',function(){
     el.style.display='';el.removeAttribute('data-print-hidden');
   });
 });
+
+function doRefresh(){
+  // Snapshot current state
+  var snap={};
+  ALL.forEach(function(b){snap[b.name]={hk:b.hk,highest:b.highest,dropped:b.dropped}});
+  var oldNames=ALL.map(function(b){return b.name});
+
+  // Show loading state on button
+  var btn=document.querySelector('.hbtn');
+  var origText=btn.textContent;
+  btn.textContent='Loading…';btn.disabled=true;
+
+  // Reload data
+  load(function(){
+    btn.textContent=origText;btn.disabled=false;
+
+    // Diff
+    var newNames=ALL.map(function(b){return b.name});
+    var changes=[];
+
+    // New buyers
+    ALL.forEach(function(b){
+      if(!snap[b.name]){
+        changes.push({type:'new',name:b.name,domain:b.domain,detail:b.highest});
+      }
+    });
+    // Stage changes & new drops
+    ALL.forEach(function(b){
+      if(!snap[b.name])return;
+      var old=snap[b.name];
+      if(!old.dropped&&b.dropped){
+        changes.push({type:'drop',name:b.name,domain:b.domain,detail:'Dropped'});
+      }else if(old.hk!==b.hk){
+        changes.push({type:'move',name:b.name,domain:b.domain,detail:old.highest+' → '+b.highest});
+      }
+    });
+    // Removed buyers
+    oldNames.forEach(function(n){
+      var found=false;for(var i=0;i<ALL.length;i++){if(ALL[i].name===n){found=true;break}}
+      if(!found)changes.push({type:'removed',name:n,domain:'',detail:'Removed'});
+    });
+
+    // Build modal
+    var now=new Date();
+    document.getElementById('mo3-time').textContent=fmtDateNoZero(now)+' '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+    if(!changes.length){
+      document.getElementById('mo3-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:28px;margin-bottom:8px">✓</div><div style="font-size:14px;color:var(--muted)">No changes detected</div></div>';
+    }else{
+      var icons={new:'<span style="color:var(--green);font-weight:700">+</span>',move:'<span style="color:var(--blue);font-weight:700">↗</span>',drop:'<span style="color:var(--red);font-weight:700">✕</span>',removed:'<span style="color:var(--muted);font-weight:700">−</span>'};
+      var labels={new:'New buyer',move:'Stage change',drop:'Drop',removed:'Removed'};
+      var h='';
+      changes.forEach(function(c){
+        h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(28,43,51,.05)">';
+        h+='<div style="width:22px;text-align:center;font-size:14px;flex-shrink:0">'+icons[c.type]+'</div>';
+        h+='<div style="width:30px;height:22px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">'+L(c.name,c.domain)+'</div>';
+        h+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--deep)">'+c.name+'</div></div>';
+        h+='<div style="font-size:10px;color:var(--muted);white-space:nowrap">'+c.detail+'</div>';
+        h+='</div>';
+      });
+      document.getElementById('mo3-body').innerHTML=h;
+    }
+    document.getElementById('mo3').classList.add('open');
+  });
+}
 </script>
 </body>
 </html>
