@@ -398,27 +398,67 @@ function pInt(c){if(!c)return[];var lines=c.split('\n'),r=[];for(var i=0;i<lines
 
 function showStage(stageKey,stageLabel,stageColor){
   var list=ALL.filter(function(b){return b[stageKey]});
-  list.sort(function(a,b){
-    var aD=(a.hk===stageKey&&a.dis!==null)?a.dis:99999;
-    var bD=(b.hk===stageKey&&b.dis!==null)?b.dis:99999;
-    return aD-bD;
-  });
-  document.getElementById('mo2-title').innerHTML='<div style="width:14px;height:14px;border-radius:50%;background:'+stageColor+';flex-shrink:0"></div><div style="font-size:18px;font-weight:700;color:var(--deep)">'+stageLabel+'</div><div style="font-size:12px;color:var(--muted);margin-left:auto">'+list.length+' buyer'+(list.length>1?'s':'')+'</div>';
+  // Find this stage's index in STG
+  var stgIdx=-1;for(var i=0;i<STG.length;i++){if(STG[i].k===stageKey){stgIdx=i;break}}
+  var isEarly=(stageKey==='identified'||stageKey==='approached');
+
+  // Title with colored bubble for count
+  document.getElementById('mo2-title').innerHTML='<div style="width:14px;height:14px;border-radius:50%;background:'+stageColor+';flex-shrink:0"></div><div style="font-size:18px;font-weight:700;color:var(--deep)">'+stageLabel+'</div><div style="background:'+stageColor+';color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:auto">'+list.length+' buyer'+(list.length>1?'s':'')+'</div>';
+
   var h='';
-  for(var i=0;i<list.length;i++){
-    var b=list[i];
-    var days='';
-    if(b.hk===stageKey&&b.dis!==null){
-      days='<span class="sm-days">('+b.dis+'d in current stage)</span>';
-    }else if(b.hk!==stageKey){
-      var stgLbl='';for(var j=0;j<STG.length;j++){if(STG[j].k===b.hk){stgLbl=STG[j].l;break}}
-      days='<span class="sm-days" style="color:'+(SC[b.hk]||'#8A9FAB')+';">\u2192 '+stgLbl+'</span>';
+
+  if(isEarly){
+    // Identified / Approached: all alphabetical, with stage bubble on the right
+    list.sort(function(a,b){return a.name.localeCompare(b.name)});
+    for(var i=0;i<list.length;i++){
+      var b=list[i];
+      var stgLbl='',stgCol='';
+      for(var j=0;j<STG.length;j++){if(STG[j].k===b.hk){stgLbl=STG[j].l;stgCol=STG[j].c;break}}
+      h+='<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'">';
+      h+='<div class="sm-logo">'+L(b.name,b.domain)+'</div>';
+      h+='<div class="sm-name" style="flex:1">'+b.name+'</div>';
+      h+='<div style="font-size:8px;font-weight:700;color:#fff;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:'+stgCol+'">'+stgLbl+'</div>';
+      h+='</div>';
     }
-    h+='<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'">';
-    h+='<div class="sm-logo">'+L(b.name,b.domain)+'</div>';
-    h+='<div class="sm-name">'+b.name+'</div>';
-    h+=days;
-    h+='</div>';
+  } else {
+    // Teaser+: split into current stage vs advanced
+    var current=[],advanced=[];
+    for(var i=0;i<list.length;i++){
+      if(list[i].hk===stageKey){current.push(list[i])}
+      else{
+        // Check if buyer is at a higher stage
+        var bIdx=-1;for(var j=0;j<STG.length;j++){if(STG[j].k===list[i].hk){bIdx=j;break}}
+        if(bIdx>stgIdx){advanced.push(list[i])}
+      }
+    }
+    current.sort(function(a,b){return a.name.localeCompare(b.name)});
+    advanced.sort(function(a,b){return a.name.localeCompare(b.name)});
+
+    // Current stage buyers with days
+    for(var i=0;i<current.length;i++){
+      var b=current[i];
+      var days=b.dis!==null?b.dis+'d in current stage':'';
+      h+='<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'">';
+      h+='<div class="sm-logo">'+L(b.name,b.domain)+'</div>';
+      h+='<div class="sm-name" style="flex:1">'+b.name+'</div>';
+      if(days){h+='<span class="sm-days" style="white-space:nowrap">('+days+')</span>';}
+      h+='</div>';
+    }
+    // Separator if both groups exist
+    if(current.length&&advanced.length){
+      h+='<div style="border-top:1px solid rgba(28,43,51,.08);margin:6px 0"></div>';
+    }
+    // Advanced buyers with stage bubble
+    for(var i=0;i<advanced.length;i++){
+      var b=advanced[i];
+      var stgLbl='',stgCol='';
+      for(var j=0;j<STG.length;j++){if(STG[j].k===b.hk){stgLbl=STG[j].l;stgCol=STG[j].c;break}}
+      h+='<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'">';
+      h+='<div class="sm-logo">'+L(b.name,b.domain)+'</div>';
+      h+='<div class="sm-name" style="flex:1">'+b.name+'</div>';
+      h+='<div style="font-size:8px;font-weight:700;color:#fff;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:'+stgCol+'">'+stgLbl+'</div>';
+      h+='</div>';
+    }
   }
   document.getElementById('mo2-list').innerHTML=h;
   document.getElementById('mo2').classList.add('open');
