@@ -632,12 +632,9 @@ function doRefresh(){
     }else{
       var h='';
       changes.forEach(function(c){
-        // Row: same layout as search dropdown
-        h+='<div class="si" style="cursor:default;padding:8px 10px">';
-        h+='<div class="si-logo">'+L(c.name,c.domain)+'</div>';
-        h+='<div class="si-name">'+c.name+'</div>';
-        // Right side: badges
-        h+='<div style="display:flex;align-items:center;gap:5px;flex-shrink:0">';
+        h+='<div class="sm-item" style="cursor:default">';
+        h+='<div class="sm-logo">'+L(c.name,c.domain)+'</div>';
+        h+='<div class="sm-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.name+'</div>';
         if(c.type==='new'){
           var nb=ALL.filter(function(b){return b.name===c.name})[0];
           var info=nb?stgInfo(nb.hk):{l:'New',c:'#00C9A0'};
@@ -645,14 +642,14 @@ function doRefresh(){
         }else if(c.type==='move'){
           var oldI=stgInfo(c.oldHk),newI=stgInfo(c.newHk);
           h+=badge(oldI.l,oldI.c);
-          h+='<span style="color:var(--muted);font-size:10px">\u2192</span>';
+          h+='<span style="color:var(--muted);font-size:10px;flex-shrink:0">\u2192</span>';
           h+=badge(newI.l,newI.c);
         }else if(c.type==='drop'){
           h+=badge('Drop','#E04848');
         }else if(c.type==='removed'){
           h+=badge('Removed','#8A9FAB');
         }
-        h+='</div></div>';
+        h+='</div>';
       });
       document.getElementById('mo3-body').innerHTML=h;
     }
