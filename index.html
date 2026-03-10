@@ -86,6 +86,9 @@ main{padding:20px 36px 48px}
 .cc-logo .init{font-size:11px;font-weight:700;color:var(--blue)}
 .cc-name{font-size:7.5px;color:var(--deep);text-align:center;line-height:1.2;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .strip-section{margin-top:12px}
+.strip-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;align-items:stretch}
+.strip-pair .strip-section{margin-top:0;display:flex;flex-direction:column}
+.strip-pair .strip-row{min-height:0;max-height:120px;overflow-y:auto;align-content:flex-start;flex:1}
 .strip-hdr{padding:9px 12px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between}
 .strip-hdr-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff}
 .strip-hdr-count{background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
@@ -136,6 +139,16 @@ main{padding:20px 36px 48px}
 /* RESPONSIVE */
 @media(max-width:768px){header{padding:0 16px;height:54px}.logo-text h1{font-size:14px}.search-wrap,.stat-pills{padding-left:16px;padding-right:16px}main{padding:16px 16px 40px}.pipeline-grid{grid-template-columns:repeat(2,1fr)!important}.stat-pills{gap:6px}.stat-pill{padding:10px 14px;min-width:0}.pill-n{font-size:15px}.cc{width:56px}.cc-logo{width:36px;height:24px}.md{padding:20px;max-width:95vw}}
 @media(max-width:480px){.pipeline-grid{grid-template-columns:1fr 1fr!important}.stat-pills{flex-direction:column}.funnel-bars{height:120px}}
+.sm-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(28,43,51,.05);cursor:pointer;transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px}
+.sm-item:last-child{border-bottom:none}
+.sm-item:hover{background:var(--blue-light)}
+.sm-logo{width:36px;height:26px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.sm-logo img{max-width:100%;max-height:100%;object-fit:contain}
+.sm-logo .init{font-size:10px;font-weight:700;color:var(--blue)}
+.sm-name{font-size:13px;font-weight:600;color:var(--deep)}
+.sm-days{font-size:11px;color:var(--muted);margin-left:2px}
+.fg-bar{cursor:pointer;transition:opacity .15s}
+.fg-bar:hover{opacity:.85}
 @media print{*{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}body{background:#fff!important}header{position:static;box-shadow:none;background:#1C2B33!important}.search-wrap,.hbtn{display:none}.mo{display:none!important}.funnel-wrap,.stat-pill{background:#fff!important;border:1px solid #ddd!important;backdrop-filter:none!important}.stage-body,.strip-row{background:#f5f5f5!important;backdrop-filter:none!important}.cc{background:#fff!important;backdrop-filter:none!important}main{padding:10px 20px}.live-dot{animation:none}}
 </style>
 </head>
@@ -167,8 +180,7 @@ main{padding:20px 36px 48px}
   </div>
   <div class="sec"><div class="sec-head"><div class="sec-lbl">Pipeline Tracker</div><div class="sec-line"></div></div>
     <div class="pipeline-grid" id="pg"></div>
-    <div id="sa" class="strip-section"></div>
-    <div id="sid" class="strip-section"></div>
+    <div class="strip-pair"><div id="sa" class="strip-section"></div><div id="sid" class="strip-section"></div></div>
     <div id="sdr" class="strip-section"></div>
   </div>
 </main></div>
@@ -186,7 +198,13 @@ main{padding:20px 36px 48px}
     <div id="mc"></div>
   </div>
 </div>
-<script>
+<div class="mo" id="mo2" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="md" style="max-width:440px">
+    <button class="md-x" onclick="document.getElementById('mo2').classList.remove('open')">✕</button>
+    <div id="mo2-title" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:40px"></div>
+    <div id="mo2-list" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
 var SK='19bVqO2NN-ookcj1ePtCJEKnLzobjHWGb77yM-h0ee24',GI='1522593400';
 var STG=[
   {k:'identified',l:'Identified',c:'#1C2B33'},{k:'approached',l:'Approached',c:'#1B4F63'},
@@ -377,7 +395,7 @@ function load(){fetchD().then(function(data){
     var col=idx*2+1;var v=cnt[s.k]||0;var h=Math.max(6,(v/mx)*150);
     var p=prv[s.k];var d=(p!==undefined)?v-p:0;
     var ar='';if(v>0){ar=d>0?'<div class="f-arr">'+aw+'+'+d+'</div>':'<div class="f-arr">–</div>'}
-    gh+='<div class="fg-bar-cell" style="grid-column:'+col+'"><div class="fg-bar-num">'+v+'</div><div class="fg-bar" style="height:'+h+'px;background:'+s.c+'">'+ar+'</div></div>';
+    gh+='<div class="fg-bar-cell" style="grid-column:'+col+'"><div class="fg-bar-num">'+v+'</div><div class="fg-bar" style="height:'+h+'px;background:'+s.c+'" onclick="showStage(\''+s.k+'\',\''+s.l+'\',\''+s.c+'\')">'+ar+'</div></div>';
   });
   // Row 3: labels
   STG.forEach(function(s,idx){
@@ -412,6 +430,34 @@ function setupS(){var inp=document.getElementById('si'),dd=document.getElementBy
 
 function fmtD(d){if(!d)return'';var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];var p=d.split(/[\/\.]/);if(p.length>=2){var day=p[0],mon=parseInt(p[1])-1;if(mon>=0&&mon<12)return day+'-'+m[mon]}return d}
 function pInt(c){if(!c)return[];var lines=c.split('\n'),r=[];for(var i=0;i<lines.length;i++){var l=lines[i].trim();if(!l||l.length<3)continue;l=l.replace(/^-\s*/,'');var m=l.match(/^(\d{1,2}[\/\.]\d{1,2}(?:[\/\.]\d{2,4})?)\s*:?\s*(.+)/);if(m)r.push({date:fmtD(m[1].trim()),text:m[2].trim()});else r.push({date:'',text:l})}return r}
+
+function showStage(stageKey,stageLabel,stageColor){
+  // Find all buyers whose highest stage matches this key (include drops that reached this stage)
+  var list=ALL.filter(function(b){return b[stageKey]});
+  // Sort by days in current stage: most recent first (smallest dis), nulls last
+  // But we need days specifically for THIS stage, so filter by hk===stageKey for "in current stage"
+  // For the list: show all who reached this stage, but days only for those whose highest IS this stage
+  list.sort(function(a,b){
+    var aD=(a.hk===stageKey&&a.dis!==null)?a.dis:99999;
+    var bD=(b.hk===stageKey&&b.dis!==null)?b.dis:99999;
+    return aD-bD;
+  });
+  var titleEl=document.getElementById('mo2-title');
+  titleEl.innerHTML='<div style="width:14px;height:14px;border-radius:50%;background:'+stageColor+';flex-shrink:0"></div><div style="font-size:18px;font-weight:700;color:var(--deep)">'+stageLabel+'</div><div style="font-size:12px;color:var(--muted);margin-left:auto">'+list.length+' buyer'+(list.length>1?'s':'')+'</div>';
+  var h='';
+  list.forEach(function(b){
+    var days='';
+    if(b.hk===stageKey&&b.dis!==null){days='<span class="sm-days">('+b.dis+'d in current stage)</span>'}
+    else if(b.hk!==stageKey){var stgLabel='';for(var i=0;i<STG.length;i++){if(STG[i].k===b.hk){stgLabel=STG[i].l;break}}days='<span class="sm-days" style="color:'+SC[b.hk]+'">→ '+stgLabel+'</span>'}
+    h+='<div class="sm-item" onclick="document.getElementById(\'mo2\').classList.remove(\'open\');showM(\''+b.name.replace(/'/g,"\\'")+'\')">';
+    h+='<div class="sm-logo">'+L(b.name,b.domain)+'</div>';
+    h+='<div class="sm-name">'+b.name+'</div>';
+    h+=days;
+    h+='</div>';
+  });
+  document.getElementById('mo2-list').innerHTML=h;
+  document.getElementById('mo2').classList.add('open');
+}
 
 function showM(name){
   var b=null;for(var i=0;i<ALL.length;i++){if(ALL[i].name===name){b=ALL[i];break}}if(!b)return;
