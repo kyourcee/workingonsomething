@@ -603,38 +603,53 @@ function doRefresh(){
         changes.push({type:'new',name:b.name,domain:b.domain,detail:b.highest});
       }
     });
-    // Stage changes & new drops
+    // Stage changes & new drops — store hk for badge colors
     ALL.forEach(function(b){
       if(!snap[b.name])return;
       var old=snap[b.name];
       if(!old.dropped&&b.dropped){
-        changes.push({type:'drop',name:b.name,domain:b.domain,detail:'Dropped'});
+        changes.push({type:'drop',name:b.name,domain:b.domain,oldHk:old.hk,newHk:b.hk});
       }else if(old.hk!==b.hk){
-        changes.push({type:'move',name:b.name,domain:b.domain,detail:old.highest+' → '+b.highest});
+        changes.push({type:'move',name:b.name,domain:b.domain,oldHk:old.hk,newHk:b.hk});
       }
     });
     // Removed buyers
     oldNames.forEach(function(n){
       var found=false;for(var i=0;i<ALL.length;i++){if(ALL[i].name===n){found=true;break}}
-      if(!found)changes.push({type:'removed',name:n,domain:'',detail:'Removed'});
+      if(!found)changes.push({type:'removed',name:n,domain:snap[n]?'':''});
     });
+
+    // Badge helper
+    function cbadge(label,color){return'<div style="font-size:8px;font-weight:700;color:'+color+';padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:'+color+'14;border:1px solid '+color+'30">'+label+'</div>'}
+    // Find stage label+color by key
+    function stgInfo(k){for(var i=0;i<STG.length;i++){if(STG[i].k===k)return STG[i]}return{l:k,c:'#8A9FAB'}}
 
     // Build modal
     var now=new Date();
     document.getElementById('mo3-time').textContent=fmtDateNoZero(now)+' '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
     if(!changes.length){
-      document.getElementById('mo3-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:28px;margin-bottom:8px">✓</div><div style="font-size:14px;color:var(--muted)">No changes detected</div></div>';
+      document.getElementById('mo3-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:28px;margin-bottom:8px">\u2713</div><div style="font-size:14px;color:var(--muted)">No changes detected</div></div>';
     }else{
-      var icons={new:'<span style="color:var(--green);font-weight:700">+</span>',move:'<span style="color:var(--blue);font-weight:700">↗</span>',drop:'<span style="color:var(--red);font-weight:700">✕</span>',removed:'<span style="color:var(--muted);font-weight:700">−</span>'};
-      var labels={new:'New buyer',move:'Stage change',drop:'Drop',removed:'Removed'};
       var h='';
       changes.forEach(function(c){
-        h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid rgba(28,43,51,.05)">';
-        h+='<div style="width:22px;text-align:center;font-size:14px;flex-shrink:0">'+icons[c.type]+'</div>';
-        h+='<div style="width:30px;height:22px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">'+L(c.name,c.domain)+'</div>';
-        h+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--deep)">'+c.name+'</div></div>';
-        h+='<div style="font-size:10px;color:var(--muted);white-space:nowrap">'+c.detail+'</div>';
+        h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(28,43,51,.05)">';
+        h+='<div class="sm-logo">'+L(c.name,c.domain)+'</div>';
+        h+='<div style="font-size:13px;font-weight:600;color:var(--deep);flex:1">'+c.name+'</div>';
+        if(c.type==='new'){
+          var nb=ALL.filter(function(b){return b.name===c.name})[0];
+          var info=nb?stgInfo(nb.hk):{l:'New',c:'var(--green)'};
+          h+=cbadge(info.l,info.c);
+        }else if(c.type==='move'){
+          var oldI=stgInfo(c.oldHk),newI=stgInfo(c.newHk);
+          h+=cbadge(oldI.l,oldI.c);
+          h+='<span style="color:var(--muted);font-size:11px;margin:0 2px">\u2192</span>';
+          h+=cbadge(newI.l,newI.c);
+        }else if(c.type==='drop'){
+          h+=cbadge('Drop','#E04848');
+        }else if(c.type==='removed'){
+          h+=cbadge('Removed','#8A9FAB');
+        }
         h+='</div>';
       });
       document.getElementById('mo3-body').innerHTML=h;
