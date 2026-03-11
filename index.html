@@ -50,11 +50,11 @@ main{padding:20px 36px 48px}
 .sec-line{flex:1;height:1px;background:var(--border)}
 .funnel-wrap{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:12px;padding:20px 20px 12px}
 .funnel-grid{display:grid;gap:0;position:relative;padding:0 25px}
-.fg-conv-line{position:absolute;top:9px;left:calc(100%/42 + 25px);right:calc(100%/42 + 25px);height:1.5px;background:rgba(28,43,51,.12);z-index:0}
+.fg-conv-line{position:absolute;left:25px;right:25px;height:1.5px;background:rgba(28,43,51,.12);z-index:0}
 .fg-axis-line{position:absolute;left:25px;right:25px;height:1.5px;background:#fff;z-index:0}
-.fg-dot-cell{display:flex;justify-content:center;align-items:center;padding-bottom:4px;position:relative;z-index:2}
+.fg-dot-cell{display:flex;justify-content:center;align-items:center;position:relative;z-index:2;height:18px}
 .fg-dot{width:10px;height:10px;border-radius:50%}
-.fg-pct-cell{display:flex;justify-content:center;align-items:center;position:relative;padding-bottom:4px;overflow:visible}
+.fg-pct-cell{display:flex;justify-content:center;align-items:center;position:relative;overflow:visible;height:18px}
 .fg-pct{font-size:10px;font-weight:600;color:var(--muted);background:#fff;padding:2px 7px;border-radius:10px;border:1px solid rgba(28,43,51,.08);position:relative;z-index:1}
 .fg-bar-cell{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:180px}
 .fg-bar-num{font-size:14px;font-weight:700;color:var(--deep);margin-bottom:4px}
@@ -149,11 +149,12 @@ main{padding:16px 16px 40px}
 .pill-n{font-size:14px}
 .funnel-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:14px 10px 8px}
 .funnel-grid{min-width:580px;padding:0 8px!important;grid-template-columns:1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr 16px 1fr!important}
-.fg-conv-line{left:calc(100%/42 + 8px)!important;right:calc(100%/42 + 8px)!important}
+.fg-conv-line{left:8px!important;right:8px!important}
 .fg-axis-line{left:8px!important;right:8px!important}
+.fg-dot-cell{height:14px!important}
+.fg-pct-cell{height:14px!important}
 .fg-bar-cell{height:110px!important}
 .fg-bar-num{font-size:10px!important}
-.fg-pct-cell{overflow:visible}
 .fg-pct{font-size:7px!important;padding:1px 4px!important;white-space:nowrap}
 .fg-dot{width:7px;height:7px}
 .fg-lbl{font-size:6px!important;white-space:normal!important;letter-spacing:0!important}
@@ -185,7 +186,14 @@ main{padding:16px 16px 40px}
 .pipeline-grid{grid-template-columns:1fr 1fr!important}
 .stat-pills{flex-direction:column}
 .strip-pair{grid-template-columns:1fr}
-.funnel-grid{min-width:520px}
+.funnel-grid{min-width:480px!important;grid-template-columns:1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr 12px 1fr!important}
+.fg-pct{font-size:6px!important;padding:0px 3px!important}
+.fg-dot{width:6px;height:6px}
+.fg-dot-cell{height:12px!important}
+.fg-pct-cell{height:12px!important}
+.fg-bar-cell{height:90px!important}
+.fg-bar-num{font-size:9px!important}
+.fg-lbl{font-size:5px!important}
 .pill-n{font-size:13px}
 .md-details{flex-direction:column;gap:12px}
 }
@@ -353,12 +361,20 @@ function load(onDone){fetchD().then(function(data){
   gridEl.style.gridTemplateColumns=colTpl.trim();
   var mx=1;STG.forEach(function(s){if((cnt[s.k]||0)>mx)mx=cnt[s.k]});
   var aw='<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>';
-  var gh='<div class="fg-conv-line"></div><div class="fg-axis-line" id="fg-axis"></div>';
+  var gh='<div class="fg-conv-line" id="fg-conv"></div><div class="fg-axis-line" id="fg-axis"></div>';
   STG.forEach(function(s,idx){var gc=idx*2+1;gh+='<div class="fg-dot-cell" style="grid-column:'+gc+'"><div class="fg-dot" style="background:'+s.c+'"></div></div>';if(idx<STG.length-1){var cv=cnt[s.k]||0,nv=cnt[STG[idx+1].k]||0;var pct=cv>0?Math.round((nv/cv)*100)+'%':'\u2014';gh+='<div class="fg-pct-cell" style="grid-column:'+(gc+1)+'"><div class="fg-pct">'+pct+'</div></div>'}});
   STG.forEach(function(s,idx){var gc=idx*2+1;var vv=cnt[s.k]||0;var bh=Math.max(6,(vv/mx)*150);var p=prv[s.k];var dd=(p!==undefined)?vv-p:0;var ar='';if(vv>0){ar=dd>0?'<div class="f-arr">'+aw+'+'+dd+'</div>':'<div class="f-arr">\u2013</div>'}gh+='<div class="fg-bar-cell" style="grid-column:'+gc+'"><div class="fg-bar-num">'+vv+'</div><div class="fg-bar" data-stg="'+idx+'" style="height:'+bh+'px;background:'+s.c+'">'+ar+'</div></div>'});
   STG.forEach(function(s,idx){var gc=idx*2+1;gh+='<div class="fg-lbl-cell" style="grid-column:'+gc+'"><div class="fg-lbl">'+s.l+'</div></div>'});
   gridEl.innerHTML=gh;
-  setTimeout(function(){var bars=gridEl.querySelectorAll('.fg-bar-cell');if(bars.length){var rect=bars[0].getBoundingClientRect();var gridRect=gridEl.getBoundingClientRect();document.getElementById('fg-axis').style.top=(rect.bottom-gridRect.top)+'px'}},50);
+  setTimeout(function(){
+    var gridRect=gridEl.getBoundingClientRect();
+    // Position conv line through center of dot row
+    var dots=gridEl.querySelectorAll('.fg-dot-cell');
+    if(dots.length){var dotRect=dots[0].getBoundingClientRect();var convLine=document.getElementById('fg-conv');if(convLine)convLine.style.top=(dotRect.top-gridRect.top+dotRect.height/2)+'px'}
+    // Position axis line at bottom of bars
+    var bars=gridEl.querySelectorAll('.fg-bar-cell');
+    if(bars.length){var rect=bars[0].getBoundingClientRect();document.getElementById('fg-axis').style.top=(rect.bottom-gridRect.top)+'px'}
+  },50);
   gridEl.addEventListener('click',function(e){var bar=e.target.closest('.fg-bar');if(!bar)return;var idx=parseInt(bar.getAttribute('data-stg'));if(isNaN(idx)||idx<0||idx>=STG.length)return;showStage(STG[idx].k,STG[idx].l,STG[idx].c)});
   // Dynamic pipeline: all stages from teaser to binding, only show non-empty
   var allPipStages=[{k:'teaser',l:'Teaser sent',c:'#0E6280'},{k:'nda_sent',l:'NDA sent',c:'#007499'},{k:'nda_signed',l:'NDA signed',c:'#0085CA'},{k:'im_sent',l:'IM shared',c:'#0093B8'},{k:'mgmt',l:'Management Pres.',c:'#00A3BE'},{k:'loi',l:'LOI',c:'#00B1BE'},{k:'phase2',l:'Phase II',c:'#00BEB5'},{k:'site_visit',l:'Site visit',c:'#00C9A0'},{k:'binding',l:'Binding Offer',c:'#00E07E'}];
