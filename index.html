@@ -183,6 +183,18 @@ main{padding:8px 20px 10px}
 </style>
 </head>
 <body>
+<!-- PASSWORD OVERLAY -->
+<div id="lockscreen" style="position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(238,242,245,.6);backdrop-filter:blur(2px)">
+  <div style="background:#fff;border-radius:18px;padding:36px;box-shadow:0 12px 40px rgba(28,43,51,.15);text-align:center;max-width:360px;width:90%">
+    <div style="font-size:24px;font-weight:700;color:#1C2B33;margin-bottom:4px">Project EDELWEISS</div>
+    <div style="font-size:12px;color:#8A9FAB;text-transform:uppercase;letter-spacing:.12em;margin-bottom:24px">Confidential</div>
+    <input id="pw-input" type="password" placeholder="Enter password" style="width:100%;padding:12px 16px;border:1px solid rgba(28,43,51,.12);border-radius:10px;font-family:inherit;font-size:14px;outline:none;text-align:center;margin-bottom:12px;transition:border .2s" onfocus="this.style.borderColor='#0085CA'" onblur="this.style.borderColor='rgba(28,43,51,.12)'">
+    <div id="pw-err" style="font-size:12px;color:#E04848;margin-bottom:12px;display:none">Incorrect password</div>
+    <button id="pw-btn" style="width:100%;padding:11px;background:#1C2B33;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s" onmouseover="this.style.background='#0085CA'" onmouseout="this.style.background='#1C2B33'">Access</button>
+  </div>
+</div>
+<!-- MAIN APP (blurred until authenticated) -->
+<div id="app-wrap" style="filter:blur(12px);pointer-events:none;user-select:none">
 <header>
   <div class="logo-text"><h1>Contact log - Project EDELWEISS</h1></div>
   <div class="header-r"><div class="live-badge"><span class="live-dot"></span>Live</div><button class="hbtn" onclick="doRefresh()">↻ Refresh</button><button class="hbtn" onclick="window.print()">⎙ PDF</button></div>
@@ -379,6 +391,7 @@ function doRefresh(){
   });
 }
 
+// Auto-load data for blurred preview
 var now=new Date();
 document.getElementById('days-count').textContent=Math.floor((now-new Date('2026-01-18'))/864e5);
 document.getElementById('lu-n').textContent=fmtDateNoZero(now);
@@ -387,6 +400,36 @@ load();
 
 window.addEventListener('beforeprint',function(){var pg=document.getElementById('pg');var cols=pg.querySelectorAll(':scope > div');var visible=0;cols.forEach(function(col){var body=col.querySelector('.stage-body');if(body&&body.textContent.trim()==='\u2014'){col.style.display='none';col.setAttribute('data-print-hidden','1')}else{visible++}});if(visible>0){pg.setAttribute('data-orig-cols',pg.style.gridTemplateColumns);pg.style.gridTemplateColumns='repeat('+visible+',1fr)'}['sa','sid','sdr'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.innerHTML.trim()){el.style.display='none';el.setAttribute('data-print-hidden','1')}})});
 window.addEventListener('afterprint',function(){var pg=document.getElementById('pg');if(pg.getAttribute('data-orig-cols')){pg.style.gridTemplateColumns=pg.getAttribute('data-orig-cols');pg.removeAttribute('data-orig-cols')}document.querySelectorAll('[data-print-hidden]').forEach(function(el){el.style.display='';el.removeAttribute('data-print-hidden')})});
+
+// Password authentication
+var PW_HASH='a]Wm#9dKx';
+function simpleHash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h}
+var EXPECTED=simpleHash('Edelweiss2026!');
+
+function unlock(){
+  var inp=document.getElementById('pw-input');
+  var val=inp.value;
+  if(simpleHash(val)===EXPECTED){
+    document.getElementById('lockscreen').style.display='none';
+    document.getElementById('app-wrap').style.filter='none';
+    document.getElementById('app-wrap').style.pointerEvents='auto';
+    document.getElementById('app-wrap').style.userSelect='auto';
+    // Reload fresh data
+    var now=new Date();
+    document.getElementById('lu-n').textContent=fmtDateNoZero(now);
+    document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    load();
+  }else{
+    document.getElementById('pw-err').style.display='block';
+    inp.style.borderColor='#E04848';
+    inp.value='';
+    inp.focus();
+  }
+}
+document.getElementById('pw-btn').addEventListener('click',unlock);
+document.getElementById('pw-input').addEventListener('keydown',function(e){if(e.key==='Enter')unlock()});
+document.getElementById('pw-input').focus();
 </script>
+</div><!-- /app-wrap -->
 </body>
 </html>
