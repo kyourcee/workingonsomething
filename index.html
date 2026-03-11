@@ -312,10 +312,14 @@ function load(onDone){fetchD().then(function(data){
   gridEl.innerHTML=gh;
   setTimeout(function(){var bars=gridEl.querySelectorAll('.fg-bar-cell');if(bars.length){var rect=bars[0].getBoundingClientRect();var gridRect=gridEl.getBoundingClientRect();document.getElementById('fg-axis').style.top=(rect.bottom-gridRect.top)+'px'}},50);
   gridEl.addEventListener('click',function(e){var bar=e.target.closest('.fg-bar');if(!bar)return;var idx=parseInt(bar.getAttribute('data-stg'));if(isNaN(idx)||idx<0||idx>=STG.length)return;showStage(STG[idx].k,STG[idx].l,STG[idx].c)});
-  var pK=['teaser','nda_sent','nda_signed','im_sent','mgmt'];
-  function hp(b){for(var i=pK.length-1;i>=0;i--){if(b[pK[i]])return pK[i]}return null}
-  document.getElementById('pg').style.gridTemplateColumns='repeat(5,1fr)';
-  var ph='';PIP.forEach(function(s){var list=active.filter(function(b){return hp(b)===s.k});var cards=list.length?list.map(card).join(''):'<div style="font-size:10px;color:var(--muted);opacity:.5;width:100%;text-align:center;padding:10px 0">\u2014</div>';ph+='<div><div class="stage-hdr" style="background:'+s.c+'"><div class="stage-hdr-name">'+s.l+'</div><div class="stage-hdr-count">'+list.length+'</div></div><div class="stage-body">'+cards+'</div></div>'});
+  // Dynamic pipeline: all stages from teaser to binding, only show non-empty
+  var allPipStages=[{k:'teaser',l:'Teaser sent',c:'#0E6280'},{k:'nda_sent',l:'NDA sent',c:'#007499'},{k:'nda_signed',l:'NDA signed',c:'#0085CA'},{k:'im_sent',l:'IM shared',c:'#0093B8'},{k:'mgmt',l:'Management Pres.',c:'#00A3BE'},{k:'loi',l:'LOI',c:'#00B1BE'},{k:'phase2',l:'Phase II',c:'#00BEB5'},{k:'site_visit',l:'Site visit',c:'#00C9A0'},{k:'binding',l:'Binding Offer',c:'#00E07E'}];
+  var allPipKeys=allPipStages.map(function(s){return s.k});
+  function hp(b){for(var i=allPipKeys.length-1;i>=0;i--){if(b[allPipKeys[i]])return allPipKeys[i]}return null}
+  // Filter to stages that have at least one active buyer at that exact stage
+  var visiblePip=allPipStages.filter(function(s){return active.some(function(b){return hp(b)===s.k})});
+  document.getElementById('pg').style.gridTemplateColumns='repeat('+Math.max(visiblePip.length,1)+',1fr)';
+  var ph='';visiblePip.forEach(function(s){var list=active.filter(function(b){return hp(b)===s.k});var cards=list.map(card).join('');ph+='<div><div class="stage-hdr" style="background:'+s.c+'"><div class="stage-hdr-name">'+s.l+'</div><div class="stage-hdr-count">'+list.length+'</div></div><div class="stage-body">'+cards+'</div></div>'});
   document.getElementById('pg').innerHTML=ph;
   var noT=active.filter(function(b){return b.approached&&!b.teaser});var s1='';if(noT.length){s1='<div class="strip-hdr" style="background:#1B4F63"><div class="strip-hdr-name">Approached but no teaser</div><div class="strip-hdr-count">'+noT.length+'</div></div><div class="strip-row">'+noT.map(card).join('')+'</div>'}document.getElementById('sa').innerHTML=s1;
   var noA=active.filter(function(b){return !b.approached});var s2='';if(noA.length){s2='<div class="strip-hdr" style="background:#1C2B33"><div class="strip-hdr-name">Identified but not approached</div><div class="strip-hdr-count">'+noA.length+'</div></div><div class="strip-row">'+noA.map(function(b){return'<div class="cc" style="opacity:.6" onclick="showM(\''+b.name.replace(/'/g,"\\'")+'\')" ><div class="cc-logo">'+L(b.name,b.domain)+'</div><div class="cc-name">'+S(b.name)+'</div></div>'}).join('')+'</div>'}document.getElementById('sid').innerHTML=s2;
@@ -398,8 +402,8 @@ document.getElementById('lu-n').textContent=fmtDateNoZero(now);
 document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 load();
 
-window.addEventListener('beforeprint',function(){var pg=document.getElementById('pg');var cols=pg.querySelectorAll(':scope > div');var visible=0;cols.forEach(function(col){var body=col.querySelector('.stage-body');if(body&&body.textContent.trim()==='\u2014'){col.style.display='none';col.setAttribute('data-print-hidden','1')}else{visible++}});if(visible>0){pg.setAttribute('data-orig-cols',pg.style.gridTemplateColumns);pg.style.gridTemplateColumns='repeat('+visible+',1fr)'}['sa','sid','sdr'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.innerHTML.trim()){el.style.display='none';el.setAttribute('data-print-hidden','1')}})});
-window.addEventListener('afterprint',function(){var pg=document.getElementById('pg');if(pg.getAttribute('data-orig-cols')){pg.style.gridTemplateColumns=pg.getAttribute('data-orig-cols');pg.removeAttribute('data-orig-cols')}document.querySelectorAll('[data-print-hidden]').forEach(function(el){el.style.display='';el.removeAttribute('data-print-hidden')})});
+window.addEventListener('beforeprint',function(){['sa','sid','sdr'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.innerHTML.trim()){el.style.display='none';el.setAttribute('data-print-hidden','1')}})});
+window.addEventListener('afterprint',function(){document.querySelectorAll('[data-print-hidden]').forEach(function(el){el.style.display='';el.removeAttribute('data-print-hidden')})});
 
 // Password authentication
 var PW_HASH='a]Wm#9dKx';
