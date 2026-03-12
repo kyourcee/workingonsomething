@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact Logs</title>
+<title>My Contact Logs</title>
+<link rel="icon" id="favicon" href="https://img.logo.dev/alvarezandmarsal.com?token=pk_bYWEonUXSpa1_O-4n_OaKQ&format=png&size=64">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#EEF2F5;color:#1A2E38;font-size:14px;min-height:100vh;display:flex;flex-direction:column}
-:root{--deep:#1C2B33;--blue:#0085CA;--blue-light:#EAF4FB;--border:rgba(28,43,51,.08);--muted:#8A9FAB;--bg:#F7F9FB;--green:#00C9A0;--glass:rgba(255,255,255,.55);--glass-border:rgba(255,255,255,.7)}
+:root{--deep:#1C2B33;--border:rgba(28,43,51,.08);--muted:#8A9FAB;--glass:rgba(255,255,255,.55);--glass-border:rgba(255,255,255,.7)}
 
 header{background:var(--deep);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(28,43,51,.12)}
 .logo-text h1{color:#fff;font-size:17px;font-weight:600;letter-spacing:-.01em}
@@ -17,16 +18,16 @@ header{background:var(--deep);height:62px;padding:0 36px;display:flex;align-item
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 main{flex:1;padding:32px 36px 48px}
-
 .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--deep);white-space:nowrap}
 .sec-line{flex:1;height:1px;background:var(--border)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
 
-.card{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:14px;padding:24px 28px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0;transition:transform .2s,box-shadow .2s;animation:fadeUp .4s ease both;position:relative;overflow:hidden}
+.card{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:16px;padding:32px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;animation:fadeUp .4s ease both;position:relative;overflow:hidden;min-height:180px}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(28,43,51,.1)}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color,var(--blue));border-radius:14px 14px 0 0}
+.card-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:16px 16px 0 0;background:#0085CA;transition:background .4s}
+.card-glow{position:absolute;top:0;left:0;right:0;height:140px;border-radius:16px 16px 0 0;opacity:.05;background:#0085CA;pointer-events:none;transition:background .4s}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .card:nth-child(1){animation-delay:.05s}
@@ -34,26 +35,36 @@ main{flex:1;padding:32px 36px 48px}
 .card:nth-child(3){animation-delay:.15s}
 .card:nth-child(4){animation-delay:.2s}
 
-.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .card-index{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.08em}
-.card-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:20px}
+.card-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:20px;background:rgba(0,133,202,.08);color:#0085CA;border:1px solid rgba(0,133,202,.2);transition:background .4s,color .4s,border-color .4s}
 
-.card-name{font-size:26px;font-weight:700;color:var(--deep);letter-spacing:-.01em;line-height:1;margin-bottom:6px}
-.card-desc{font-size:12px;color:var(--muted);margin-bottom:20px}
+.card-title{font-size:20px;font-weight:700;color:var(--deep);letter-spacing:-.01em;line-height:1.2;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:auto;padding-bottom:24px}
 
-.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border)}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);margin-top:auto}
 .card-url{font-size:10px;color:var(--muted)}
-.card-arrow{font-size:16px;color:var(--card-color,var(--blue));opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s}
+.card-arrow{font-size:16px;color:#0085CA;opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s,color .4s}
 .card:hover .card-arrow{opacity:1;transform:translateX(0)}
+
+.mini-spin{width:10px;height:10px;border:1.5px solid rgba(28,43,51,.15);border-top-color:var(--muted);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--glass);backdrop-filter:blur(12px)}
 .footer-txt{font-size:11px;color:var(--muted);letter-spacing:.06em}
+
+@media(max-width:600px){
+  header{padding:0 16px}.logo-text h1{font-size:14px}
+  main{padding:20px 16px 32px}
+  .grid{grid-template-columns:1fr}
+  footer{padding:16px;flex-direction:column;gap:4px;text-align:center}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-text"><h1>M&A Contact Logs</h1></div>
+  <div class="logo-text"><h1>My Contact Logs</h1></div>
   <div class="live-badge"><span class="live-dot"></span>Live</div>
 </header>
 
@@ -62,38 +73,7 @@ footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;justify
     <div class="sec-lbl">Active Projects</div>
     <div class="sec-line"></div>
   </div>
-
-  <div class="grid">
-
-    <a class="card" href="./edelweiss/" style="--card-color:#0085CA;">
-      <div class="card-top">
-        <div class="card-index">01</div>
-        <div class="card-badge" style="background:rgba(0,133,202,.08);color:#0085CA;border:1px solid rgba(0,133,202,.2);">Active</div>
-      </div>
-      <div class="card-name">EDELWEISS</div>
-      <div class="card-desc">M&A deal tracking dashboard</div>
-      <div class="card-footer">
-        <div class="card-url">/edelweiss/</div>
-        <div class="card-arrow">→</div>
-      </div>
-    </a>
-
-    <a class="card" href="./geg/" style="--card-color:#00C9A0;">
-      <div class="card-top">
-        <div class="card-index">02</div>
-        <div class="card-badge" style="background:rgba(0,201,160,.08);color:#00C9A0;border:1px solid rgba(0,201,160,.2);">Active</div>
-      </div>
-      <div class="card-name">GEG</div>
-      <div class="card-desc">M&A deal tracking dashboard</div>
-      <div class="card-footer">
-        <div class="card-url">/geg/</div>
-        <div class="card-arrow">→</div>
-      </div>
-    </a>
-
-    <!-- Ajoute tes futurs projets ici en copiant un bloc <a class="card"> -->
-
-  </div>
+  <div class="grid" id="grid"></div>
 </main>
 
 <footer>
@@ -101,5 +81,140 @@ footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;justify
   <div class="footer-txt">Sports, Leisure & Entertainment</div>
 </footer>
 
+<canvas id="cvs" width="80" height="80" style="display:none"></canvas>
+
+<script>
+var TK = 'pk_bYWEonUXSpa1_O-4n_OaKQ';
+
+var PROJECTS = [
+  {
+    index: '01',
+    name: 'EDELWEISS',
+    label: 'Project EDELWEISS - Contact Log',
+    href: './edelweiss/',
+    sheetId: '19bVqO2NN-ookcj1ePtCJEKnLzobjHWGb77yM-h0ee24',
+    gid: '1522593400'
+  },
+  {
+    index: '02',
+    name: 'GEG',
+    label: 'Project GEG - Contact Log',
+    href: './geg/',
+    sheetId: '1aWMNinhiyPV5oQNgSujcrTuoH2FRHcxrVSOQ8w7GAls',
+    gid: '1522593400'
+  }
+  // Ajoute tes futurs projets ici
+];
+
+var DEFAULT_COLORS = ['#0085CA','#00C9A0','#E8A838','#9B59B6','#E04848'];
+
+function hexRgb(h){h=h.replace('#','');return parseInt(h.substring(0,2),16)+','+parseInt(h.substring(2,4),16)+','+parseInt(h.substring(4,6),16)}
+
+// Extract dominant color from an image url via canvas
+function extractColor(imgUrl) {
+  return new Promise(function(resolve) {
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      try {
+        var cvs = document.getElementById('cvs');
+        var ctx = cvs.getContext('2d');
+        ctx.clearRect(0,0,80,80);
+        ctx.drawImage(img, 0, 0, 80, 80);
+        var data = ctx.getImageData(0,0,80,80).data;
+        // Collect non-white, non-transparent pixels
+        var buckets = {};
+        for(var i=0;i<data.length;i+=4){
+          var r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+          if(a < 100) continue; // skip transparent
+          var lum = (r*299+g*587+b*114)/1000;
+          if(lum > 230) continue; // skip near-white
+          if(lum < 20) continue;  // skip near-black
+          // Quantize to reduce noise
+          var qr=Math.round(r/32)*32, qg=Math.round(g/32)*32, qb=Math.round(b/32)*32;
+          var key = qr+','+qg+','+qb;
+          buckets[key] = (buckets[key]||0)+1;
+        }
+        var best=null,bestN=0;
+        for(var k in buckets){if(buckets[k]>bestN){bestN=buckets[k];best=k;}}
+        if(best){
+          var parts=best.split(',');
+          var hex='#'+('0'+parseInt(parts[0]).toString(16)).slice(-2)+('0'+parseInt(parts[1]).toString(16)).slice(-2)+('0'+parseInt(parts[2]).toString(16)).slice(-2);
+          resolve(hex);
+        } else {
+          resolve(null);
+        }
+      } catch(e){ resolve(null); }
+    };
+    img.onerror = function(){ resolve(null); };
+    img.src = imgUrl;
+  });
+}
+
+// Fetch B8 from sheet
+function fetchDomain(sheetId, gid) {
+  return new Promise(function(resolve) {
+    var url = 'https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?tqx=out:csv&gid='+gid+'&range=B8';
+    fetch(url)
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var val = t.replace(/^"|"$/g,'').trim();
+        resolve(val || null);
+      })
+      .catch(function(){ resolve(null); });
+  });
+}
+
+function applyColor(idx, color) {
+  var card = document.getElementById('card-'+idx);
+  if(!card) return;
+  var r = hexRgb(color);
+  card.querySelector('.card-bar').style.background = color;
+  card.querySelector('.card-glow').style.background = color;
+  card.querySelector('.card-badge').style.background = 'rgba('+r+',.08)';
+  card.querySelector('.card-badge').style.color = color;
+  card.querySelector('.card-badge').style.borderColor = 'rgba('+r+',.2)';
+  card.querySelector('.card-arrow').style.color = color;
+  // remove spinner if present
+  var spin = card.querySelector('.mini-spin');
+  if(spin) spin.remove();
+}
+
+// Render initial cards
+var grid = document.getElementById('grid');
+var html = '';
+PROJECTS.forEach(function(p, idx) {
+  html += '<a class="card" href="'+p.href+'" id="card-'+idx+'">'
+    + '<div class="card-bar"></div>'
+    + '<div class="card-glow"></div>'
+    + '<div class="card-top">'
+    +   '<div class="card-index">'+p.index+'</div>'
+    +   '<div class="card-badge"><span class="mini-spin"></span></div>'
+    + '</div>'
+    + '<div class="card-title">'+p.label+'</div>'
+    + '<div class="card-sub">M&amp;A deal tracking dashboard</div>'
+    + '<div class="card-footer">'
+    +   '<div class="card-url">'+p.href+'</div>'
+    +   '<div class="card-arrow">→</div>'
+    + '</div>'
+    + '</a>';
+});
+grid.innerHTML = html;
+
+// Load colors
+PROJECTS.forEach(function(p, idx) {
+  var fallback = DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+  fetchDomain(p.sheetId, p.gid).then(function(domain) {
+    if(!domain) { applyColor(idx, fallback); return; }
+    var imgUrl = 'https://img.logo.dev/'+domain+'?token='+TK+'&format=png&size=80';
+    extractColor(imgUrl).then(function(color) {
+      applyColor(idx, color || fallback);
+      // Also update badge text now that we have the color
+      var card = document.getElementById('card-'+idx);
+      if(card) card.querySelector('.card-badge').innerHTML = 'Active';
+    });
+  });
+});
+</script>
 </body>
 </html>
