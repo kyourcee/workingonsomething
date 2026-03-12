@@ -166,7 +166,7 @@ main{padding:8px 20px 10px}.sec{margin-bottom:14px}.sec-head{margin-bottom:8px}
 <header><div class="logo-text"><h1>Contact log - Project GEG</h1></div><div class="header-r"><div class="live-badge"><span class="live-dot"></span>Live</div><button class="hbtn" onclick="doRefresh()">&#8635; Refresh</button><button class="hbtn" onclick="window.print()">&#9113; PDF</button></div></header>
 <div class="search-wrap"><input class="search-input" id="si" type="text" placeholder="Search a counterparty..." autocomplete="off"><div class="search-dd" id="sdd"></div></div>
 <div class="stat-pills">
-  <div class="stat-pill"><div class="pill-n"><span id="days-count">&mdash;</span> days</div><div class="pill-l">Since launch</div><div class="pill-sub">Launched 18 Jan 2026</div></div>
+  <div class="stat-pill"><div class="pill-n"><span id="days-count">&mdash;</span> days</div><div class="pill-l">Since launch</div><div class="pill-sub" id="launch-sub">Launched...</div></div>
   <div class="stat-pill"><div class="pill-n" id="lu-n">&mdash;</div><div class="pill-l">Last update</div><div class="pill-sub" id="lu-sub">&mdash;</div></div>
   <div class="stat-pill clickable" id="pill-buyers" onclick="showBuyersModal()"><div class="pill-n" id="pa-n">&mdash;</div><div class="pill-sub" id="pa-sub">&mdash;</div><div class="pill-sub2" id="pa-sub2"></div></div>
 </div>
@@ -301,8 +301,18 @@ function load(onDone){fetchD().then(function(data){
   applyColors(c1,c2,stageColors);
   var vd='\u2014',frMos={janv:0,f:1,mars:2,avr:3,mai:4,juin:5,juil:6,ao:7,sept:8,oct:9,nov:10,d:11},enMos=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   for(var i=0;i<Math.min(data.length,hI);i++){for(var j=0;j<data[i].length;j++){var v=(data[i][j]||'').trim().toLowerCase();if(v.indexOf('previous update')>=0||v.indexOf('previous date')>=0){for(var jj=j+1;jj<data[i].length;jj++){var dd=(data[i][jj]||'').trim();if(!dd)continue;var fm=dd.match(/^(\d{1,2})-([a-z\u00e9\u00fb]+\.?)-(\d{2,4})$/i);if(fm){for(var fk in frMos){if(fm[2].replace('.','').toLowerCase().indexOf(fk)===0){vd=parseInt(fm[1])+'-'+enMos[frMos[fk]]+'-'+fm[3];break}}if(vd!=='\u2014')break}var im=dd.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(im){vd=parseInt(im[3])+'-'+enMos[im[2]-1]+'-'+im[1].slice(2);break}var sm=dd.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);if(sm){vd=parseInt(sm[1])+'-'+enMos[sm[2]-1]+'-'+sm[3];break}}break}}if(vd!=='\u2014')break}
+  // Read launch date from B4 (row 3, col 1)
+  var launchDate=null;
+  if(data[3]){var ld=(data[3][1]||'').trim();if(ld)launchDate=pD(ld)}
+  var now=new Date();
+  if(launchDate){
+    document.getElementById('days-count').textContent=Math.floor((now-launchDate)/864e5);
+    document.getElementById('launch-sub').textContent='Launched '+fmtDateNoZero(launchDate);
+  } else {
+    document.getElementById('days-count').textContent='?';
+  }
   document.getElementById('vd').textContent=vd;
-  var buyers=[],now=new Date();
+  var buyers=[],now2=now;
   for(var i=hI+1;i<data.length;i++){var row=data[i];var name=(row[col.name]||'').trim();if(!name)continue;var hasOther=false;for(var ci=0;ci<row.length;ci++){if(ci===col.name)continue;if((row[ci]||'').trim()){hasOther=true;break}}if(!hasOther)continue;
     var st=(col.status!==undefined?(row[col.status]||''):'').trim().toLowerCase();var dr=st.indexOf('drop')>=0;var dm=(col.domain!==undefined?(row[col.domain]||''):'').trim();var cm=(col.comments!==undefined?(row[col.comments]||''):'').trim();var nx=(col.next!==undefined?(row[col.next]||''):'').trim();var ct=(col.contact!==undefined?(row[col.contact]||''):'').trim();var ti=(col.title!==undefined?(row[col.title]||''):'').trim();var em=(col.email!==undefined?(row[col.email]||''):'').trim();
     var _a=col.approached!==undefined&&row[col.approached]&&row[col.approached].trim()?true:false,_t=col.teaser!==undefined&&row[col.teaser]&&row[col.teaser].trim()?true:false,_ns=col.nda_sent!==undefined&&row[col.nda_sent]&&row[col.nda_sent].trim()?true:false,_nd=col.nda_signed!==undefined&&row[col.nda_signed]&&row[col.nda_signed].trim()?true:false,_im=col.im_sent!==undefined&&row[col.im_sent]&&row[col.im_sent].trim()?true:false,_mg=col.mgmt!==undefined&&row[col.mgmt]&&row[col.mgmt].trim()?true:false,_lo=col.loi!==undefined&&row[col.loi]&&row[col.loi].trim()?true:false,_p2=col.phase2!==undefined&&row[col.phase2]&&row[col.phase2].trim()?true:false,_sv=col.site_visit!==undefined&&row[col.site_visit]&&row[col.site_visit].trim()?true:false,_bi=col.binding!==undefined&&row[col.binding]&&row[col.binding].trim()?true:false;
@@ -405,7 +415,7 @@ function doRefresh(){var snap={};ALL.forEach(function(b){snap[b.name]={hk:b.hk,h
     if(!changes.length){document.getElementById('mo3-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:28px;margin-bottom:8px">\u2713</div><div style="font-size:14px;color:var(--muted)">No changes detected</div></div>'}else{var h='';changes.forEach(function(c){h+='<div class="sm-item" style="cursor:default"><div class="sm-logo">'+L(c.name,c.domain)+'</div><div class="sm-name" style="flex:1">'+c.name+'</div>';if(c.type==='new')h+=badge(stgInfo(c.newHk).l,stgInfo(c.newHk).c);else if(c.type==='move')h+=badge(stgInfo(c.oldHk).l,stgInfo(c.oldHk).c)+'<span style="color:var(--muted);font-size:10px;margin:0 3px">\u2192</span>'+badge(stgInfo(c.newHk).l,stgInfo(c.newHk).c);else if(c.type==='drop')h+=badge('Drop','#E04848');else h+=badge('Removed','#8A9FAB');h+='</div>'});document.getElementById('mo3-body').innerHTML=h}
     document.getElementById('mo3').classList.add('open')})}
 
-var now=new Date();document.getElementById('days-count').textContent=Math.floor((now-new Date('2026-01-18'))/864e5);document.getElementById('lu-n').textContent=fmtDateNoZero(now);document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+var now=new Date();document.getElementById('lu-n').textContent=fmtDateNoZero(now);document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
 var mobOv=null;
 function closeMob(){if(mobOv){mobOv.remove();mobOv=null}var sh=document.getElementById('mob-sheet-el');sh.classList.remove('open');sh.innerHTML=''}
