@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>Contact Log - Project GEG</title>
 <link rel="icon" id="favicon" href="">
+<script>
+(function(){var TK='pk_bYWEonUXSpa1_O-4n_OaKQ',dom='geg.asia';var img=new Image();img.crossOrigin='anonymous';img.onload=function(){var c=document.createElement('canvas');c.width=64;c.height=64;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,64,64);ctx.drawImage(img,0,0,64,64);document.getElementById('favicon').href=c.toDataURL('image/png')};img.src='https://img.logo.dev/'+dom+'?token='+TK+'&format=png&size=64'})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -226,6 +229,15 @@ function applyColors(c1,c2){
   if(btn){btn.style.background=c1}
   // Spinner
   document.querySelector('.spinner').style.borderTopColor=c1;
+  // Interpolate STG/MST/SC colors between c1 and c2
+  function hexToRgb(h){h=h.replace('#','');return[parseInt(h.substring(0,2),16),parseInt(h.substring(2,4),16),parseInt(h.substring(4,6),16)]}
+  function rgbToHex(r,g,b){return'#'+[r,g,b].map(function(v){return('0'+Math.round(v).toString(16)).slice(-2)}).join('')}
+  function lerp(a,b,t){return a+(b-a)*t}
+  var rgb1=hexToRgb(c1),rgb2=hexToRgb(c2),n=STG.length;
+  STG.forEach(function(s,i){var t=i/(n-1);s.c=rgbToHex(lerp(rgb1[0],rgb2[0],t),lerp(rgb1[1],rgb2[1],t),lerp(rgb1[2],rgb2[2],t))});
+  MST.forEach(function(s,i){var t=i/(n-1);s.c=rgbToHex(lerp(rgb1[0],rgb2[0],t),lerp(rgb1[1],rgb2[1],t),lerp(rgb1[2],rgb2[2],t))});
+  var keys=['identified','approached','teaser','nda_sent','nda_signed','im_sent','mgmt','loi','phase2','site_visit','binding'];
+  keys.forEach(function(k,i){var t=i/(n-1);SC[k]=rgbToHex(lerp(rgb1[0],rgb2[0],t),lerp(rgb1[1],rgb2[1],t),lerp(rgb1[2],rgb2[2],t))});
 }
 
 
