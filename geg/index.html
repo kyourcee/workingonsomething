@@ -267,7 +267,7 @@ function load(onDone){fetchD().then(function(data){
   buyers.sort(function(a,b){return a.name.localeCompare(b.name)});ALL=buyers;
   var active=buyers.filter(function(b){return!b.dropped}),drops=buyers.filter(function(b){return b.dropped});
   var appA=buyers.filter(function(b){return b.approached&&!b.dropped}),appD=buyers.filter(function(b){return b.approached&&b.dropped}),totalApp=buyers.filter(function(b){return b.approached}).length;
-  document.getElementById('pa-n').textContent=appA.length+' active buyers';document.getElementById('pa-sub').textContent=totalApp+' approached';document.getElementById('pa-sub2').innerHTML='<span style="color:#bbb">('+appD.length+' drops)</span>';
+  document.getElementById('pa-n').textContent=active.length+' active buyers';document.getElementById('pa-sub').textContent=totalApp+' approached';document.getElementById('pa-sub2').innerHTML='<span style="color:#bbb">('+appD.length+' drops)</span>';
   var sM={identified:col.identified,approached:col.approached,teaser:col.teaser,nda_sent:col.nda_sent,nda_signed:col.nda_signed,im_sent:col.im_sent,mgmt:col.mgmt,loi:col.loi,phase2:col.phase2,site_visit:col.site_visit,binding:col.binding};
   var cnt={},prv={};
   if(fR){STG.forEach(function(s){var ci=sM[s.k];cnt[s.k]=(ci!==undefined&&fR[ci])?parseInt(fR[ci])||0:0})}else{STG.forEach(function(s){cnt[s.k]=buyers.filter(function(b){return b[s.k]}).length})}
