@@ -4,282 +4,101 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact Logs</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#EEF2F5;color:#1A2E38;font-size:14px;min-height:100vh;display:flex;flex-direction:column}
+:root{--deep:#1C2B33;--blue:#0085CA;--blue-light:#EAF4FB;--border:rgba(28,43,51,.08);--muted:#8A9FAB;--bg:#F7F9FB;--green:#00C9A0;--glass:rgba(255,255,255,.55);--glass-border:rgba(255,255,255,.7)}
 
-  :root {
-    --bg: #0e1a20;
-    --surface: #1C2B33;
-    --surface2: #223040;
-    --border: rgba(255,255,255,0.07);
-    --text: #e8edf0;
-    --muted: #6b8490;
-    --accent: #4fc38a;
-  }
+header{background:var(--deep);height:62px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(28,43,51,.12)}
+.logo-text h1{color:#fff;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.live-badge{display:flex;align-items:center;gap:5px;color:#4DD9AC;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4DD9AC;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 48px 52px;
-  }
+main{flex:1;padding:32px 36px 48px}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--deep);white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
 
-  header {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 56px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid var(--border);
-  }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 
-  .header-left { display: flex; align-items: center; gap: 16px; }
+.card{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:14px;padding:24px 28px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0;transition:transform .2s,box-shadow .2s;animation:fadeUp .4s ease both;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(28,43,51,.1)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color,var(--blue));border-radius:14px 14px 0 0}
 
-  .logo-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-    animation: pulse 2.5s ease-in-out infinite;
-  }
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.1s}
+.card:nth-child(3){animation-delay:.15s}
+.card:nth-child(4){animation-delay:.2s}
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
-    50% { opacity: 0.5; box-shadow: 0 0 3px var(--accent); }
-  }
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-index{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.08em}
+.card-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:20px}
 
-  .site-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text);
-  }
+.card-name{font-size:26px;font-weight:700;color:var(--deep);letter-spacing:-.01em;line-height:1;margin-bottom:6px}
+.card-desc{font-size:12px;color:var(--muted);margin-bottom:20px}
 
-  .header-right {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border)}
+.card-url{font-size:10px;color:var(--muted)}
+.card-arrow{font-size:16px;color:var(--card-color,var(--blue));opacity:0;transform:translateX(-4px);transition:opacity .2s,transform .2s}
+.card:hover .card-arrow{opacity:1;transform:translateX(0)}
 
-  .section-label {
-    position: relative;
-    z-index: 1;
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-
-  .grid {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
-    flex: 1;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 28px 32px;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.2s, border-color 0.2s, transform 0.2s;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  .card:nth-child(1) { animation-delay: 0.05s; }
-  .card:nth-child(2) { animation-delay: 0.12s; }
-  .card:nth-child(3) { animation-delay: 0.19s; }
-  .card:nth-child(4) { animation-delay: 0.26s; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--card-color, var(--accent));
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .card:hover {
-    background: var(--surface2);
-    border-color: rgba(255,255,255,0.12);
-    transform: translateY(-2px);
-  }
-
-  .card:hover::after { opacity: 1; }
-
-  .card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .card-badge {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 3px;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .card-index {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .card-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    line-height: 1;
-    margin-bottom: 10px;
-  }
-
-  .card-desc {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.5;
-    margin-bottom: 24px;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    margin-top: auto;
-  }
-
-  .card-url {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  .card-arrow {
-    font-size: 14px;
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: opacity 0.2s, transform 0.2s;
-  }
-
-  .card:hover .card-arrow {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  footer {
-    position: relative;
-    z-index: 1;
-    margin-top: 48px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .live-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    margin-right: 6px;
-    vertical-align: middle;
-    animation: pulse 2.5s ease-in-out infinite;
-  }
+footer{padding:20px 36px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--glass);backdrop-filter:blur(12px)}
+.footer-txt{font-size:11px;color:var(--muted);letter-spacing:.06em}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">
-    <div class="logo-dot"></div>
-    <div class="site-title">M&A Contact Logs</div>
-  </div>
-  <div class="header-right">claralamotte.github.io/contactlog</div>
+  <div class="logo-text"><h1>M&A Contact Logs</h1></div>
+  <div class="live-badge"><span class="live-dot"></span>Live</div>
 </header>
 
-<div class="section-label">Active Projects</div>
+<main>
+  <div class="sec-head">
+    <div class="sec-lbl">Active Projects</div>
+    <div class="sec-line"></div>
+  </div>
 
-<div class="grid">
+  <div class="grid">
 
-  <a class="card" href="./edelweiss/" style="--card-color:#4fc38a;">
-    <div class="card-top">
-      <div class="card-badge" style="background:rgba(79,195,138,0.1);color:#4fc38a;border:1px solid rgba(79,195,138,0.25);">Active</div>
-      <div class="card-index">01</div>
-    </div>
-    <div class="card-name">EDELWEISS</div>
-    <div class="card-desc">M&A deal tracking dashboard</div>
-    <div class="card-footer">
-      <div class="card-url">/edelweiss/</div>
-      <div class="card-arrow" style="color:#4fc38a;">→</div>
-    </div>
-  </a>
+    <a class="card" href="./edelweiss/" style="--card-color:#0085CA;">
+      <div class="card-top">
+        <div class="card-index">01</div>
+        <div class="card-badge" style="background:rgba(0,133,202,.08);color:#0085CA;border:1px solid rgba(0,133,202,.2);">Active</div>
+      </div>
+      <div class="card-name">EDELWEISS</div>
+      <div class="card-desc">M&A deal tracking dashboard</div>
+      <div class="card-footer">
+        <div class="card-url">/edelweiss/</div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
 
-  <a class="card" href="./geg/" style="--card-color:#5aabf0;">
-    <div class="card-top">
-      <div class="card-badge" style="background:rgba(90,171,240,0.1);color:#5aabf0;border:1px solid rgba(90,171,240,0.25);">Active</div>
-      <div class="card-index">02</div>
-    </div>
-    <div class="card-name">GEG</div>
-    <div class="card-desc">M&A deal tracking dashboard</div>
-    <div class="card-footer">
-      <div class="card-url">/geg/</div>
-      <div class="card-arrow" style="color:#5aabf0;">→</div>
-    </div>
-  </a>
+    <a class="card" href="./geg/" style="--card-color:#00C9A0;">
+      <div class="card-top">
+        <div class="card-index">02</div>
+        <div class="card-badge" style="background:rgba(0,201,160,.08);color:#00C9A0;border:1px solid rgba(0,201,160,.2);">Active</div>
+      </div>
+      <div class="card-name">GEG</div>
+      <div class="card-desc">M&A deal tracking dashboard</div>
+      <div class="card-footer">
+        <div class="card-url">/geg/</div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
 
-  <!-- Ajoute tes futurs projets ici en copiant un bloc <a class="card"> -->
+    <!-- Ajoute tes futurs projets ici en copiant un bloc <a class="card"> -->
 
-</div>
+  </div>
+</main>
 
 <footer>
-  <div><span class="live-dot"></span>Live dashboards</div>
-  <div>Sports, Leisure & Entertainment</div>
+  <div class="footer-txt">claralamotte.github.io/contactlog</div>
+  <div class="footer-txt">Sports, Leisure & Entertainment</div>
 </footer>
 
 </body>
