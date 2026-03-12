@@ -13,16 +13,16 @@ body{font-family:'DM Sans',sans-serif;background:#EEF2F5;color:#1A2E38;font-size
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 main{flex:1;padding:40px 40px 56px;padding-top:48px}
 .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);white-space:nowrap}
+.sec-lbl{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);white-space:nowrap}
 .sec-line{flex:1;height:1px;background:var(--border)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px}
 .card{background:rgba(255,255,255,.6);backdrop-filter:blur(12px);border-radius:14px;display:flex;flex-direction:column;animation:fadeUp .35s ease both;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8);box-shadow:0 2px 8px rgba(28,43,51,.04)}
 .card-bar{position:absolute;top:0;left:0;right:0;height:6px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.09s}.card:nth-child(3){animation-delay:.14s}
-.card-body{padding:24px 24px 20px;display:flex;flex-direction:column;gap:18px;flex:1}
+.card-body{padding:32px 32px 26px;display:flex;flex-direction:column;gap:22px;flex:1}
 
-.card-title{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.card-title{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.2;color:#1C2B33 !important}
 
 
 .card-footer{display:flex;align-items:center;justify-content:space-between}
@@ -69,7 +69,7 @@ function buildCard(p, idx) {
   return '<div class="card" id="card-'+idx+'">'
     +'<div class="card-bar" style="background:'+c+'"></div>'
     +'<div class="card-body">'
-    +'<div class="card-title"><span style="color:var(--muted);font-weight:500">Project </span><span style="color:'+c+'">'+p.label.replace('Project ','')+'</span></div>'
+    +'<div class="card-title">'+p.label+'</div>'
     +'<div class="card-footer">'
     +'<div class="active-status"><div class="active-dot"></div>Active</div>'
     +'<a class="open-btn" href="'+p.href+'" style="background:'+c+';border-color:'+c+'" '
