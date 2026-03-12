@@ -34,6 +34,8 @@ header{background:var(--deep);height:62px;padding:0 36px;display:flex;align-item
 .si-stage{font-size:8px;font-weight:700;color:#fff;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .stat-pills{display:flex;gap:10px;padding:14px 36px 0;flex-wrap:wrap}
 .stat-pill{background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:10px;padding:10px 20px;flex:1;min-width:120px;display:flex;flex-direction:column;justify-content:center}
+.stat-pill.clickable{cursor:pointer;transition:border .18s,box-shadow .18s}
+.stat-pill.clickable:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(0,133,202,.1)}
 .pill-n{font-size:18px;font-weight:700;color:var(--deep);line-height:1}.pill-l{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.14em;margin-top:5px}.pill-sub{font-size:11px;color:var(--muted);margin-top:3px}.pill-sub2{font-size:11px;color:var(--muted);margin-top:2px}
 main{padding:20px 36px 48px}
 .sec{margin-bottom:32px}.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.18em;color:var(--deep);white-space:nowrap}.sec-line{flex:1;height:1px;background:var(--border)}
@@ -152,7 +154,7 @@ main{padding:8px 20px 10px}.sec{margin-bottom:14px}.sec-head{margin-bottom:8px}
     <div style="font-size:12px;color:#8A9FAB;text-transform:uppercase;letter-spacing:.12em;margin-bottom:24px">Confidential</div>
     <input id="pw-input" type="password" placeholder="Enter password" style="width:100%;padding:12px 16px;border:1px solid rgba(28,43,51,.12);border-radius:10px;font-family:inherit;font-size:14px;outline:none;text-align:center;margin-bottom:12px;transition:border .2s" onfocus="this.style.borderColor='#0085CA'" onblur="this.style.borderColor='rgba(28,43,51,.12)'">
     <div id="pw-err" style="font-size:12px;color:#E04848;margin-bottom:12px;display:none">Incorrect password</div>
-    <button id="pw-btn" style="width:100%;padding:11px;background:#1C2B33;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onmouseover="this.style.background='#0085CA'" onmouseout="this.style.background='#1C2B33'">Access</button>
+    <button id="pw-btn" style="width:100%;padding:11px;background:#0085CA;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onmouseover="this.style.background='#006FA8'" onmouseout="this.style.background='#0085CA'">Access</button>
   </div>
 </div>
 <div id="app-wrap" style="filter:blur(12px);pointer-events:none;user-select:none">
@@ -161,7 +163,7 @@ main{padding:8px 20px 10px}.sec{margin-bottom:14px}.sec-head{margin-bottom:8px}
 <div class="stat-pills">
   <div class="stat-pill"><div class="pill-n"><span id="days-count">&mdash;</span> days</div><div class="pill-l">Since launch</div><div class="pill-sub">Launched 18 Jan 2026</div></div>
   <div class="stat-pill"><div class="pill-n" id="lu-n">&mdash;</div><div class="pill-l">Last update</div><div class="pill-sub" id="lu-sub">&mdash;</div></div>
-  <div class="stat-pill"><div class="pill-n" id="pa-n">&mdash;</div><div class="pill-sub" id="pa-sub">&mdash;</div><div class="pill-sub2" id="pa-sub2"></div></div>
+  <div class="stat-pill clickable" id="pill-buyers" onclick="showBuyersModal()"><div class="pill-n" id="pa-n">&mdash;</div><div class="pill-sub" id="pa-sub">&mdash;</div><div class="pill-sub2" id="pa-sub2"></div></div>
 </div>
 <div id="loading"><div class="spinner"></div><p>Loading data from Google Sheets&hellip;</p></div>
 <div id="dashboard"><main>
@@ -183,8 +185,9 @@ main{padding:8px 20px 10px}.sec{margin-bottom:14px}.sec-head{margin-bottom:8px}
 <div class="mo" id="mo" onclick="if(event.target===this)this.classList.remove('open')"><div class="md"><button class="md-x" onclick="document.getElementById('mo').classList.remove('open')">&#10005;</button><div class="md-top"><div class="md-logo" id="ml"></div><div class="md-co" id="mn"></div><div class="md-right"><div id="mb"></div><div class="md-timing" id="mt"></div></div></div><div id="mp"></div><div id="mdet"></div><div id="mns"></div><div id="mc"></div></div></div>
 <div class="mo" id="mo2" onclick="if(event.target===this)this.classList.remove('open')"><div class="md" style="max-width:440px"><button class="md-x" onclick="document.getElementById('mo2').classList.remove('open')">&#10005;</button><div id="mo2-title" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:40px"></div><div id="mo2-list" style="max-height:60vh;overflow-y:auto"></div></div></div>
 <div class="mo" id="mo3" onclick="if(event.target===this)this.classList.remove('open')"><div class="md" style="max-width:460px"><button class="md-x" onclick="document.getElementById('mo3').classList.remove('open')">&#10005;</button><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-right:40px"><div style="font-size:18px;font-weight:700;color:var(--deep)">What changed</div><div style="font-size:11px;color:var(--muted);margin-left:auto" id="mo3-time"></div></div><div id="mo3-body" style="max-height:60vh;overflow-y:auto"></div></div></div>
+<div class="mo" id="mo4" onclick="if(event.target===this)this.classList.remove('open')"><div class="md" style="max-width:520px"><button class="md-x" onclick="document.getElementById('mo4').classList.remove('open')">&#10005;</button><div id="mo4-body"></div></div></div>
 <div id="mob-sheet-el" class="mob-sheet"></div>
-</div><!-- /app-wrap -->
+</div>
 <script>
 var SK='19bVqO2NN-ookcj1ePtCJEKnLzobjHWGb77yM-h0ee24',GI='1522593400';
 var STG=[{k:'identified',l:'Identified',c:'#1C2B33'},{k:'approached',l:'Approached',c:'#1B4F63'},{k:'teaser',l:'Teaser sent',c:'#0E6280'},{k:'nda_sent',l:'NDA sent',c:'#007499'},{k:'nda_signed',l:'NDA signed',c:'#0085CA'},{k:'im_sent',l:'IM sent',c:'#0093B8'},{k:'mgmt',l:'Management Pres.',c:'#00A3BE'},{k:'loi',l:'LOI',c:'#00B1BE'},{k:'phase2',l:'Phase II',c:'#00BEB5'},{k:'site_visit',l:'Site visit',c:'#00C9A0'},{k:'binding',l:'Binding Offer',c:'#00E07E'}];
@@ -204,6 +207,44 @@ function fetchD(){return new Promise(function(res,rej){var u1='https://docs.goog
 function pD(s){if(!s)return null;s=s.trim();var m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return new Date(+m[1],m[2]-1,+m[3]);var m2=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);if(m2){var y=+m2[3];if(y<100)y+=2000;return new Date(y,m2[2]-1,+m2[1])}var frM={janv:0,'\u00e9vr':1,mars:2,avr:3,mai:4,juin:5,juil:6,ao:7,sept:8,oct:9,nov:10,d:11};var m3=s.match(/^(\d{1,2})-([a-z\u00e9\u00fb]+\.?)-(\d{2,4})$/i);if(m3){var mk=m3[2].replace('.','').toLowerCase().substring(0,4);for(var k in frM){if(mk.indexOf(k)===0){var y=+m3[3];if(y<100)y+=2000;return new Date(y,frM[k],+m3[1])}}};return null}
 function dB(a,b){return Math.floor((b-a)/864e5)}
 var ALL=[],mobCards={};
+
+function showBuyersModal(){
+  var active=ALL.filter(function(b){return!b.dropped}).sort(function(a,b){return a.name.localeCompare(b.name)});
+  var drops=ALL.filter(function(b){return b.dropped}).sort(function(a,b){return a.name.localeCompare(b.name)});
+  function row(b){
+    var inf=stgInfo(b.hk);
+    return'<div class="sm-item" data-name="'+b.name.replace(/"/g,'&quot;')+'">'
+      +'<div class="sm-logo">'+L(b.name,b.domain)+'</div>'
+      +'<div class="sm-name" style="flex:1'+(b.dropped?';opacity:.6':'')+'" >'+b.name+'</div>'
+      +badge(b.dropped?'Drop':inf.l, b.dropped?'#6B7B86':inf.c)
+      +'</div>';
+  }
+  function sec(label,color,list){
+    var r=hexRgb(color);
+    return'<div style="margin-bottom:20px">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+      +'<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:'+color+'">'+label+'</div>'
+      +'<div class="tbadge" style="color:'+color+';background:rgba('+r+',.1);border:1px solid rgba('+r+',.2)">'+list.length+'</div>'
+      +'</div>'
+      +list.map(row).join('')
+      +'</div>';
+  }
+  var h='<div style="font-size:20px;font-weight:700;color:var(--deep);margin-bottom:20px;padding-right:40px">Buyers overview</div>';
+  if(active.length) h+=sec('Active buyers','#0085CA',active);
+  if(drops.length) h+=sec('Drops','#6B7B86',drops);
+  document.getElementById('mo4-body').innerHTML=h;
+  document.getElementById('mo4').classList.add('open');
+}
+
+document.getElementById('mo4').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('open');
+  var item=e.target.closest('.sm-item');
+  if(item){
+    document.getElementById('mo4').classList.remove('open');
+    showM(item.getAttribute('data-name'));
+  }
+});
+
 function load(onDone){fetchD().then(function(data){
   var hI=-1;for(var i=0;i<Math.min(data.length,15);i++){for(var j=0;j<data[i].length;j++){if((data[i][j]||'').toLowerCase().trim()==='company'){hI=i;break}}if(hI>=0)break}
   if(hI<0){document.getElementById('loading').innerHTML='<p style="color:var(--red)">Header not found</p>';return}
@@ -231,7 +272,6 @@ function load(onDone){fetchD().then(function(data){
   var cnt={},prv={};
   if(fR){STG.forEach(function(s){var ci=sM[s.k];cnt[s.k]=(ci!==undefined&&fR[ci])?parseInt(fR[ci])||0:0})}else{STG.forEach(function(s){cnt[s.k]=buyers.filter(function(b){return b[s.k]}).length})}
   if(pR){STG.forEach(function(s){var ci=sM[s.k];prv[s.k]=(ci!==undefined&&pR[ci])?parseInt(pR[ci])||0:0})}
-  // Funnel
   var nCols=STG.length*2-1,gridEl=document.getElementById('funnel-grid'),colTpl='';for(var ci=0;ci<nCols;ci++)colTpl+=(ci%2===0)?'1fr ':'24px ';gridEl.style.gridTemplateColumns=colTpl.trim();
   var mx=1;STG.forEach(function(s){if((cnt[s.k]||0)>mx)mx=cnt[s.k]});
   var aw='<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V2M6 2L3 5M6 2l3 3"/></svg>';
@@ -242,7 +282,6 @@ function load(onDone){fetchD().then(function(data){
   gridEl.innerHTML=gh;
   setTimeout(function(){var gr=gridEl.getBoundingClientRect(),dots=gridEl.querySelectorAll('.fg-dot-cell'),bars=gridEl.querySelectorAll('.fg-bar-cell');if(dots.length){var dr=dots[0].getBoundingClientRect();document.getElementById('fg-conv').style.top=(dr.top-gr.top+dr.height/2)+'px'}if(bars.length)document.getElementById('fg-axis').style.top=(bars[0].getBoundingClientRect().bottom-gr.top)+'px'},50);
   gridEl.addEventListener('click',function(e){var bar=e.target.closest('.fg-bar');if(!bar)return;var idx=parseInt(bar.getAttribute('data-stg'));if(!isNaN(idx)&&idx>=0&&idx<STG.length)showStage(STG[idx].k,STG[idx].l,STG[idx].c)});
-  // Pipeline
   var allPip=[{k:'teaser',l:'Teaser sent',c:'#0E6280'},{k:'nda_sent',l:'NDA sent',c:'#007499'},{k:'nda_signed',l:'NDA signed',c:'#0085CA'},{k:'im_sent',l:'IM shared',c:'#0093B8'},{k:'mgmt',l:'Mgmt Pres.',c:'#00A3BE'},{k:'loi',l:'LOI',c:'#00B1BE'},{k:'phase2',l:'Phase II',c:'#00BEB5'},{k:'site_visit',l:'Site visit',c:'#00C9A0'},{k:'binding',l:'Binding Offer',c:'#00E07E'}];
   var apk=allPip.map(function(s){return s.k});
   function hp(b){for(var i=apk.length-1;i>=0;i--)if(b[apk[i]])return apk[i];return null}
@@ -250,7 +289,6 @@ function load(onDone){fetchD().then(function(data){
   document.getElementById('pg').style.gridTemplateColumns='repeat('+Math.max(visPip.length,1)+',1fr)';
   mobCards={};var ph='';visPip.forEach(function(s){var list=active.filter(function(b){return hp(b)===s.k});mobCards[s.k]=list;ph+='<div><div class="stage-hdr" data-mob="'+s.k+'" style="background:'+s.c+'"><div class="stage-hdr-name">'+s.l+'</div><div class="stage-hdr-count">'+list.length+'</div></div><div class="stage-body">'+list.map(card).join('')+'</div></div>'});
   document.getElementById('pg').innerHTML=ph;
-  // Strips
   var noT=active.filter(function(b){return b.approached&&!b.teaser});mobCards._noT=noT;
   document.getElementById('sa').innerHTML=noT.length?'<div class="strip-hdr" data-mob="_noT" style="background:#1B4F63"><div class="strip-hdr-name">Approached / no teaser</div><div class="strip-hdr-count">'+noT.length+'</div></div><div class="strip-row">'+noT.map(card).join('')+'</div>':'';
   var noA=active.filter(function(b){return!b.approached});mobCards._noA=noA;
@@ -281,11 +319,9 @@ function doRefresh(){var snap={};ALL.forEach(function(b){snap[b.name]={hk:b.hk,h
     if(!changes.length){document.getElementById('mo3-body').innerHTML='<div style="text-align:center;padding:24px 0"><div style="font-size:28px;margin-bottom:8px">\u2713</div><div style="font-size:14px;color:var(--muted)">No changes detected</div></div>'}else{var h='';changes.forEach(function(c){h+='<div class="sm-item" style="cursor:default"><div class="sm-logo">'+L(c.name,c.domain)+'</div><div class="sm-name" style="flex:1">'+c.name+'</div>';if(c.type==='new')h+=badge(stgInfo(c.newHk).l,stgInfo(c.newHk).c);else if(c.type==='move')h+=badge(stgInfo(c.oldHk).l,stgInfo(c.oldHk).c)+'<span style="color:var(--muted);font-size:10px;margin:0 3px">\u2192</span>'+badge(stgInfo(c.newHk).l,stgInfo(c.newHk).c);else if(c.type==='drop')h+=badge('Drop','#E04848');else h+=badge('Removed','#8A9FAB');h+='</div>'});document.getElementById('mo3-body').innerHTML=h}
     document.getElementById('mo3').classList.add('open')})}
 
-// Init
 var now=new Date();document.getElementById('days-count').textContent=Math.floor((now-new Date('2026-01-18'))/864e5);document.getElementById('lu-n').textContent=fmtDateNoZero(now);document.getElementById('lu-sub').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 load();
 
-// Mobile: tap pill to open bottom sheet with logos
 var mobOv=null;
 function closeMob(){if(mobOv){mobOv.remove();mobOv=null}var sh=document.getElementById('mob-sheet-el');sh.classList.remove('open');sh.innerHTML=''}
 document.addEventListener('click',function(e){
@@ -299,11 +335,9 @@ document.addEventListener('click',function(e){
   sh.classList.add('open');
 });
 
-// Print
 window.addEventListener('beforeprint',function(){['sa','sid','sdr'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.innerHTML.trim()){el.style.display='none';el.setAttribute('data-ph','1')}})});
 window.addEventListener('afterprint',function(){document.querySelectorAll('[data-ph]').forEach(function(el){el.style.display='';el.removeAttribute('data-ph')})});
 
-// Password
 function simpleHash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return h}
 var EXPECTED=simpleHash('Edelweiss2026!');
 function unlock(){var val=document.getElementById('pw-input').value;if(simpleHash(val)===EXPECTED){document.getElementById('lockscreen').style.display='none';var aw=document.getElementById('app-wrap');aw.style.filter='none';aw.style.pointerEvents='auto';aw.style.userSelect='auto';load()}else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-input').style.borderColor='#E04848';document.getElementById('pw-input').value='';document.getElementById('pw-input').focus()}}
