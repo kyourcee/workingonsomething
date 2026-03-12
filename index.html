@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Logs</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f0f0f;
+    --paper: #f5f2ec;
+    --muted: #888;
+    --accent: #2a4a3e;
+    --line: rgba(0,0,0,0.1);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 40px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 80px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+
+  .site-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+    flex: 1;
+  }
+
+  .card {
+    background: white;
+    padding: 32px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s ease;
+  }
+
+  .card:hover {
+    background: #fafaf8;
+  }
+
+  .card:hover::before {
+    transform: scaleY(1);
+  }
+
+  .card-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  .card-url {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    word-break: break-all;
+  }
+
+  .card-arrow {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    font-size: 18px;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Animate in */
+  .card {
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">Contact Logs</div>
+  <div class="site-sub">M&A Deal Tracking</div>
+</header>
+
+<div class="grid">
+
+  <a class="card" href="./edelweiss/">
+    <div class="card-label">Project</div>
+    <div class="card-name">EDELWEISS</div>
+    <div class="card-url">claralamotte.github.io/contactlog/edelweiss/</div>
+    <div class="card-arrow">→</div>
+  </a>
+
+  <a class="card" href="./geg/">
+    <div class="card-label">Project</div>
+    <div class="card-name">GEG</div>
+    <div class="card-url">claralamotte.github.io/contactlog/geg/</div>
+    <div class="card-arrow">→</div>
+  </a>
+
+  <!-- Ajoute tes futurs projets ici en copiant un bloc <a class="card"> -->
+
+</div>
+
+<footer>claralamotte.github.io/contactlog</footer>
+
+</body>
+</html>
