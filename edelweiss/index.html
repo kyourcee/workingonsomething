@@ -103,7 +103,7 @@ main{padding:12px 12px 40px}
 .stat-pill{padding:9px 14px;min-width:0;flex:1 1 45%}
 .pill-n{font-size:14px}.pill-l{font-size:9px;margin-top:3px}.pill-sub,.pill-sub2{font-size:12px}
 .funnel-wrap{padding:10px 4px 6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.funnel-grid{min-width:560px!important;padding:0 8px!important;grid-template-columns:1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr 18px 1fr!important}
+.funnel-grid{min-width:660px!important;padding:0 8px!important;grid-template-columns:repeat(21,minmax(0,1fr))!important;column-gap:0!important}
 .fg-conv-line{left:8px!important;right:8px!important}.fg-axis-line{left:8px!important;right:8px!important}
 .fg-dot-cell{height:14px!important}.fg-dot{width:7px;height:7px}
 .fg-pct-cell{height:12px!important}.fg-pct{font-size:8px!important;padding:1px 4px!important;border-radius:4px!important}
@@ -113,17 +113,17 @@ main{padding:12px 12px 40px}
 .funnel-footer{display:none}
 .sec-head{margin-bottom:8px}.sec-lbl{font-size:9px;letter-spacing:.12em}
 /* Pipeline : pills cliquables, stage-body masquee, ouvre modal via JS */
-.pipeline-grid{display:flex!important;flex-wrap:wrap;gap:6px!important;justify-content:center}
-.pipeline-grid>div{flex:none}
-.stage-hdr{padding:6px 14px;cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;min-width:100px;justify-content:center}
+.pipeline-grid{display:flex!important;flex-wrap:wrap;gap:6px!important;justify-content:flex-start;padding:0}
+.pipeline-grid>div{flex:none;display:block}
+.stage-hdr{padding:6px 14px;cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;justify-content:center}
 .stage-hdr-name{font-size:9px;letter-spacing:.02em}.stage-hdr-count{font-size:9px;padding:1px 7px;border-radius:12px}
 .stage-body{display:none!important}
 /* Strips : meme traitement */
-.strip-pair{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:center}.strip-pair .strip-section{flex:none}
-.strip-hdr{padding:6px 14px;cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;min-width:100px;justify-content:center}
+.strip-pair{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;justify-content:flex-start}.strip-pair .strip-section{flex:none;display:block}
+.strip-hdr{padding:6px 14px;cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;justify-content:center}
 .strip-hdr-name{font-size:9px}.strip-hdr-count{font-size:9px;padding:1px 7px;border-radius:12px}
 .strip-pair .strip-row{display:none!important}
-#sdr{margin-top:6px}#sdr .strip-hdr{cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;min-width:100px;justify-content:center}#sdr .strip-row{display:none!important}
+#sdr{margin-top:6px}#sdr .strip-hdr{cursor:pointer;border-radius:20px!important;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;white-space:nowrap;justify-content:center}#sdr .strip-row{display:none!important}
 .md{padding:20px;max-width:92vw;border-radius:14px}.md-co{font-size:15px}.md-top{gap:10px}.md-logo{width:42px;height:42px}
 .sm-item{gap:8px;padding:8px 4px}.sm-logo{width:28px;height:20px}.sm-name{font-size:12px}.sm-days{font-size:10px}.tbadge{font-size:8px;padding:2px 7px}
 }
